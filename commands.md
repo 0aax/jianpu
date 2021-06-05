@@ -22,6 +22,10 @@
 \minim{1}: 1/2th
 \semibreve{1}: Whole
 
+\sharp{1}: Sharp
+\flat{1}: Flat
+\natural{1}: Natural
+
 \grace{1}: Grace note
 \chord{1, 2}, \chord{1, 2, 3}, etc.: Chords where each note is separated by a comma.
 \trem{1}: Tremolo on note 1.
