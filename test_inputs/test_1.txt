@@ -1,0 +1,10 @@
+\title{Test 1}
+\composer{Audrey Xie}
+\instrument{Liuqin}
+
+\time{4}{4}
+\key{1}{C}
+\temp{100}
+
+1 2 3 \bar 123\quaver{4} \bar
+567\lrepeat\dot{\raiseoct{1}}\dot{2} 4545\rrepeat\dot{1}
