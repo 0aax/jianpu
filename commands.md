@@ -3,12 +3,12 @@
 \composer{name}, \composer{name, affliliation}: Composer name or composer name and affiliation.
 \instrument{name}: Instrument name
 
-\time{4}{4}: Time signature
-\key{1}{C}: Key signature
+\time{4, 4}: Time signature
+\key{1, C}: Key signature
 \tempo{100}: Tempo
 
-\raiseoct{1}{2}: Raised octave, in example note 1 is raised 2 octaves.
-\loweroct{1}{2}: Lowered octave, in exaomple note 1 is lowered 2 octaves
+\raiseoct{1, 2}: Raised octave, in example note 1 is raised 2 octaves.
+\loweroct{1, 2}: Lowered octave, in exaomple note 1 is lowered 2 octaves
 
 \bar: Vertical bar line
 \lrepeat, \rrepeat: Left and right repeat bars
@@ -27,10 +27,10 @@
 \natural{1}: Natural
 
 \grace{1}: Grace note
-\chord{1}{2}, \chord{1}{2}{3}, etc.: Chords where each note is separated by a comma.
+\chord{1, 2}, \chord{1, 2, 3}, etc.: Chords where each note is separated by a comma.
 \trem{1}: Tremolo on note 1.
 
-\finger{1}{2}: Fingering instructions. Example shown represents using finger 2 for note 1.
+\finger{1, 2}: Fingering instructions. Example shown represents using finger 2 for note 1.
 \down{1}: Down strumming/Bowing/etc. direction, lines adjusted based on where it is a single note or a chord.
 \up{1}: Up _____''_____
 
