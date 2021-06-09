@@ -1,3 +1,5 @@
+[title Test One]
+[instrument Liuqin]
 [a 4 4]
 [b 1 C]
 [c 100]

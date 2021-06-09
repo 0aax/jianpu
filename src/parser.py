@@ -8,48 +8,41 @@ import re
 
 def tokenize(txt):
     """
-    Given text of notes and 'operators', returns a list of tokens (e.g str([flat 1] 2 [trem 2]) --> [[flat, 1], 2, [trem, 4]])
+    Given text of notes and 'operators', returns a list of tokens (e.g str([flat 1] 2 [trem 2]) --> [['flat', 1], 2, ['trem', 4]])
     """
     def clean(txt):
         """
         Makes text more uniform. Returns said text.
         """
         cleaned = txt.replace('[ ', '[').replace(' ]', ']')
+        cleaned =  re.sub('[ ]+', ' ', cleaned)
         return cleaned
     
     def place_commas(txt):
         """
         Helper function to add commas in their proper places.
         """
-        tmp = re.sub("(\w+)\s+(\d+)", r"\1, \2", txt)
-        tmp = re.sub("(\d+)\s+(\d+)", r"\1, \2", tmp)
-        tmp = re.sub("(\]+)\s+(\[+)", r"\1, \2", tmp)
-        tmp = re.sub("(\]+)\s+(\d+)", r"\1, \2", tmp)
-        fin = re.sub("(\d+)\s+(\[+)", r"\1, \2", tmp)
-
+        tmp = re.sub('\[([a-zA-Z]+)\s', r'[\1, ', txt)  # [op ... --> [op, ...
+        tmp = re.sub('\]\s([0-9])', r'], \1', tmp)      # ] note --> ], note
+        tmp = re.sub('([0-9])\s\[', r'\1, [', tmp)      # note [ --> note, [
+        tmp = re.sub('\]\s\[', r'], [', tmp)            # ] [ --> ], [
+        fin = re.sub('([0-9])\s', r'\1, ', tmp)         # char/note --> char/note
         return fin
-    
+
     def fix_strings(txt):
         """
         Helper function to make sure that strings will be evaluated as strings.
         """
+        tmp = re.sub('\[(\w+),', r'["\1",', txt)             # [op, ... --> ['op', ...
+        tmp = re.sub(',\s([a-zA-Z ]+)\]', r', "\1"]', tmp)   # , text] ---> , 'text']
+        fin = re.sub('\[([a-zA-Z]+)\]', r'["\1"]', tmp)      # [op] ---> ['op']
+
+        return fin
 
     cleaned = clean(txt)
-    tkns_tmp = place_commas(cleaned)
+    tkns_tmp = '[' + fix_strings(place_commas(cleaned)) + ']'
     tkns = ast.literal_eval(tkns_tmp)
-    # tkn_tmp = cleaned.split('\\')
-    # tkn_tmp = ['\\' + t for t in tkn_tmp if t != '']
-    # tkns = []
-    # for t in tkn_tmp:
-    #     tkns += further_tokenize(t)
-    
-    # i = 0
-    # while i < len(tkns)-1:
-    #     if tkns[i][:1] == '\\' and tkns[i+1] == '{': # apparently \\ is one element, so slice by [:1]
-    #         tkns[i], tkns[i+1] = tkns[i+1], tkns[i]
-    #         i += 2
-    #     else: i += 1
-        
+
     return tkns
 
 def parse(file):
@@ -67,7 +60,7 @@ def parse(file):
     n_param = {'\\chord'}
     
     fl = open(file)
-    txt = fl.read().replace('\n', '')
+    txt = fl.read().replace('\n', ' ')
     tkns = tokenize(txt)
 
     # def recur_parser(i):
@@ -99,4 +92,4 @@ def parse(file):
     return tkns
 
 if __name__ == '__main__':
-    print(tokenize(parse('test_inputs/test_1.txt')))
+    print(parse('test_inputs/test_1.txt'))
