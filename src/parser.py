@@ -1,5 +1,6 @@
 import ast
 import re
+
 # 1) Title, composer/instrument name, and other header stuff.
 # 1.5) Note lengths and accidentals
 # 2) Chords and fingering/bowing/strumming/etc. directions
@@ -8,7 +9,7 @@ import re
 
 def tokenize(txt):
     """
-    Given text of notes and 'operators', returns a list of tokens (e.g str([flat 1] 2 [trem 2]) --> [['flat', 1], 2, ['trem', 4]])
+    Given text of notes and 'operators', returns a string that can be evaluated easily (e.g str([flat 1] 2 [trem 2]) --> '[["flat", 1], 2, ["trem", 4]]')
     """
     def clean(txt):
         """
@@ -40,8 +41,7 @@ def tokenize(txt):
         return fin
 
     cleaned = clean(txt)
-    tkns_tmp = '[' + fix_strings(place_commas(cleaned)) + ']'
-    tkns = ast.literal_eval(tkns_tmp)
+    tkns = '[' + fix_strings(place_commas(cleaned)) + ']'
 
     return tkns
 
@@ -61,33 +61,7 @@ def parse(file):
     
     fl = open(file)
     txt = fl.read().replace('\n', ' ')
-    tkns = tokenize(txt)
-
-    # def recur_parser(i):
-        
-    #     while i < len(tkns):
-    #         if tkns[i].isnumeric(): return [['\\crochet', tkns[i]]] + recur_parser(i+1), i+1
-    #         elif tkns[i] in no_param: return [[tkns[i]]] + recur_parser(i+1), i+1
-    #         elif tkns[i] in single_param_text:
-    #             tkn_tmp, i_tmp = tkns[i+2], i+2
-    #             inner_txt = ''
-    #             while tkn_tmp != '}':
-    #                 inner_txt += tkn_tmp
-    #                 tkn_tmp, i_tmp = tkns[i+1], i+1
-    #             return [[tkns[i], inner_txt]] + recur_parser(i_tmp+1), i_tmp+1
-    #         elif tkns[i] in single_param_notes:
-    #             tkn_i = tkns[i]
-    #             parsed = [tkn_i]
-    #             while tkn_i != '}':
-    #                 parsed_tmp, i_tmp = recur_parser(i+2)
-    #                 parsed += parsed_tmp
-    #                 tkn_i = tkns[i_tmp]
-    #             return [parsed_tmp] + recur_parser(i_tmp+1), i_tmp+1
-    #         elif tkns[i] in double_param_notes:
-    #             tkn_i, i_tmp = tkn[i+2], i+2
-    #             while tkn_i != '{':
-    #                 parsed_tmp, i_tmp = recur_parser(i_tmp)
-    #                 i_tmp += 1
+    tkns = ast.literal_eval(tokenize(txt))
                 
     return tkns
 
