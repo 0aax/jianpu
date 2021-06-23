@@ -22,8 +22,8 @@
 [qvr 1]: quaver, 8th
 [sqvr 1]: semiquaver, 16th
 [qtr 1]: quarter/crotchet, 1/4th (but plain notes are also by default 1/4th)
-[mm 1]: minim, 1/2th
-[sbrve 1]: semibreve, Whole
+[mm 1]: minim, half
+[sbrve 1]: semibreve, whole
 
 [sharp 1]: Sharp
 [flat 1]: Flat

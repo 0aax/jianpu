@@ -9,8 +9,10 @@ def tokenize(txt):
         """
         Makes text more uniform. Returns said text.
         """
-        cleaned = txt.replace('[ ', '[').replace(' ]', ']')
+        cleaned = txt.replace('[ ', '[').replace(' ]', ']').replace('][', '] [')
         cleaned =  re.sub('[ ]+', ' ', cleaned)
+        cleaned = re.sub('([0-9])\[', r'\1 [', cleaned)
+        cleaned = re.sub('\]([0-9])', r'] \1', cleaned)
         return cleaned
     
     def place_commas(txt):
