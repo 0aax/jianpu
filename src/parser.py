@@ -1,12 +1,6 @@
 import ast
 import re
 
-# 1) Title, composer/instrument name, and other header stuff.
-# 1.5) Note lengths and accidentals
-# 2) Chords and fingering/bowing/strumming/etc. directions
-# 2.5) Octaves and dynamics
-# 3) Slurs and ties
-
 def tokenize(txt):
     """
     Given text of notes and 'operators', returns a string that can be evaluated easily (e.g str([flat 1] 2 [trem 2]) --> '[["flat", 1], 2, ["trem", 4]]')
