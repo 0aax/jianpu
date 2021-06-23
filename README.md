@@ -25,9 +25,9 @@ Terribly temperamental program for [jianpu](https://en.wikipedia.org/wiki/Number
 [ddot 1]: Increases length by 3/4, in example note 1 is extended by 3/4
 [dot 1]: Increases length by 1/2, in example note 1 is extened by 1/2
 
-[qvr 1]: quaver, 8th
 [sqvr 1]: semiquaver, 16th
-[qtr 1]: quarter/crotchet, 1/4th (but plain notes are also by default 1/4th)
+[qvr 1]: quaver, 8th
+[ccht 1]: crotchet, 1/4th (but plain notes are also by default 1/4th)
 [mm 1]: minim, half
 [sbrve 1]: semibreve, whole
 

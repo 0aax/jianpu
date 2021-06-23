@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw
 # default values
 bars_per_row = 6
 
-DPI = 300 # typical print dpi
+dpi = 300 # typical print dpi
 paper_sizes = {'a4': (2480, 3508),
                'letter': (2550, 3300)}
 
@@ -12,7 +12,7 @@ header_elems = {'title', 'comp', 'inst'}
 types_bars = {'bar', 'lrep', 'rrep'}
 
 two_no_add_alloc = {'roct', 'loct'}
-n_no_add_alloc = {'qvr', 'sqvr', 'qtr', 'mm', 'sbrve'}
+n_no_add_alloc = {'qvr', 'sqvr', 'ccht', 'mm', 'sbrve'}
 no_add_alloc = two_no_add_alloc | n_no_add_alloc | types_bars
 
 one_add_alloc_notes = {'down', 'up', 'trem', 'grace', 'scresc', 'ecresc', 'sdim', 'edim'}
@@ -20,8 +20,17 @@ two_add_alloc_notes = {'fing'}
 n_add_alloc_notes = {'chord'}
 add_alloc_notes = one_add_alloc_notes | two_add_alloc_notes | n_add_alloc_notes
 
+# note width scaling factors
+note_base_width = 50
+
+sqvr_factor = 0.8
+qvr_factor = 0.9
+ccht_factor = 1.
+mm_factor = 1.1
+sbrve_factor = 1.2
+
 class Composition:
-    def __init__(self, paper_type='letter', parsed=list()):
+    def __init__(self, parsed=list(), paper_type='letter', margins=[75, 75, 75, 75]):
         
         self.paper_type = paper_type
         self.parsed = parsed
@@ -29,12 +38,13 @@ class Composition:
         self.header, self.notes = self.split_header_notes(self.uniform_parsed)
         
         self.paper = Image.new('RGB', paper_sizes[paper_type], (255, 255, 255))
+        self.margins = {'top': margins[0], 'right': margins[1], 'bottom': margins[2], 'left': margins[3]} # initally set to quarter-inch margins on all sides
 
         self.header_height = 0
         self.line_height = 0
         self.num_lines = 0
 
-        self.barred_notes = self.gen_barred_notes(self.notes)
+        self.barred_notes = self.gen_measured_notes(self.notes)
         self.naive_notes_alloc = self.gen_naive_notes_alloc(self.barred_notes)
     
     def set_header_height(self, height):
@@ -82,19 +92,19 @@ class Composition:
             else: notes_tmp.append(n)
         return header, notes_tmp
 
-    def gen_barred_notes(self, notes):
+    def gen_measured_notes(self, notes):
         """
         Re-organizes notes such that all notes in a bar are grouped in an array.
         """
-        barred_notes = []
+        measured_notes = []
         curr_bar = []
         for n in notes:
             if n[0] in types_bars:
-                barred_notes.append(curr_bar)
+                measured_notes.append(curr_bar)
                 curr_bar = []
             else: curr_bar.append(n)
-        if len(curr_bar) != 0: barred_notes.append(curr_bar)
-        return barred_notes
+        if len(curr_bar) != 0: measured_notes.append(curr_bar)
+        return measured_notes
 
     def gen_naive_notes_alloc(self, barred_notes):
         """
@@ -111,8 +121,8 @@ class Composition:
                 return get_alloc(n[-1]) + alloc_tmp
         
         alloc = []
-        for bar in barred_notes:
-            bar_alloc = []
-            for n in bar: bar_alloc.append(get_alloc(n))
-            alloc.append(bar_alloc)
+        for measure in barred_notes:
+            measure_alloc = []
+            for n in measure: measure_alloc.append(get_alloc(n))
+            alloc.append(measure_alloc)
         return alloc
