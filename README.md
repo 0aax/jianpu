@@ -1,24 +1,49 @@
 # jianpu
 
-Terribly temperamental program for [jianpu](https://en.wikipedia.org/wiki/Numbered_musical_notation) typesetting.
+Terribly temperamental program for [简谱:jiǎnpǔ](https://en.wikipedia.org/wiki/Numbered_musical_notation) typesetting.
 
-
-### Possible commands
+## List of commands
+### 1. Composition general information
+#### 1.1 Header-related commands
 ```
-### header, all of the following should be put into a [header ...] array
-### i.e. [header [title name] [comp name] ...]
-[title name]: Title, centered at the top of the first page.
-[comp name], [comp name affiliation]: Composer name or composer name and affiliation.
-[inst name]: Instrument name
-#### end header
+\title{Name}: Title, centered at the top of the first page.
+\composer{Name}: Composer name
+\affiliation{Institution}: Institutional affiliation
+\instrument{Name}: Instrument name
+```
+All of the previous commands should wrapped in `\header{...}`.
+```
+\header{
+    \title{Comp no. 1}
+    \inst{Kazoo}
+    \comp{Audrey X.}
+}
+```
+#### 1.2 Other relevant info, not exclusively confined to the header
+```
+\time{4, 4}: Time signature
+\key{1=C}: Key signature
+\temp{100}: Tempo
+```
+### 2. Note-related commands
+#### 2.1 Octaves
+```
+\roct{1, 2}: Raised octave, in example note 1 is raised 2 octaves.
+\loct{1, 2}: Lowered octave, in example note 1 is lowered 2 octaves.
+```
+### 2.1 Duration
+```
+\ddot{1}: Increases length by 3/4, in example note 1 is extended by 3/4
+\dot{1}: Increases length by 1/2, in example note 1 is extened by 1/2
 
-[time 4 4]: Time signature
-[key 1 C]: Key signature
-[tempo 100]: Tempo
+\sqvr{1}: semiquaver, 16th
+\qvr{1}: quaver, 8th
+\ccht{1}: crotchet, 1/4th (but plain notes are also by default 1/4th)
+\mm{1}: minim, half
+\sbrve{1}: semibreve, whole
+```
 
-[roct 1 2]: Raised octave, in example note 1 is raised 2 octaves.
-[loct 1 2]: Lowered octave, in exaomple note 1 is lowered 2 octaves
-
+```
 [bar]: Vertical bar line
 [lrpt], [rrpt]: Left and right repeat bars
 

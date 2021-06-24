@@ -61,12 +61,6 @@ def parse(file, is_lst=False):
     - Foo(s) can be a single-element array or have multiple elements (i.e. [[quaver, dot], 1]).
     - The only exception to this format are chords, in which the array will take the form: [[chord], [[foo1, ...], note1], [[foo2, ...], note2], ...]
     """
-
-    no_param = {'\\bar', '\\lrepeat', '\\rrepeat'}
-    single_param_notes = {'\\doubledot', '\\dot', '\\quaver', '\\semiquaver', '\\crochet', '\\minim', '\\semibreve', '\\sharp', '\\flat', '\\natural', '\\grace', '\\trem', '\\down', '\\up', '\\stie', '\\etie', '\\sslur', '\\eslur', '\\p', '\\mp', '\\f', '\\mf', '\\scresc', '\\ecresc', '\\sdim', '\\edim'}
-    single_param_text = {'\\title', '\\composer', '\\instrument', '\\tempo'}
-    double_param_notes = {'\\time', '\\key', '\\raiseoct', '\\loweroct', '\\finger'}
-    n_param = {'\\chord'}
     
     fl = open(file)
     txt = fl.read().replace('\n', ' ')
