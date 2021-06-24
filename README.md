@@ -58,7 +58,7 @@ X: Percussion (or placeholder for rhythms without pitch)
 \mm{1}: minim, half
 \sbrve{1}: semibreve, whole
 ```
-The `1` refers to a note, it can be replaced with a note of any form.
+All duration operators can handle notes of any form (i.e. ones that have been raised or lowered octaves)
 ```
 \qvr{\roct{4, 1}}
 \sbrve{\loct{3, 2}}
@@ -86,7 +86,7 @@ Slur placement is determined by the start and end notes. The curve itself will e
 The placement of dynamic changes are determined by their start and end notes.
 ```
 \scresc{1}, \ecresc{4}: Crescendo, in example crescendo starts at 1 and ends at 4.
-\sdim{4}, \edim{1}: Diminuendo/Decrescendo, didn't differentiate between the two :), same pattern as crescendo.
+\sdim{4}, \edim{1}: Diminuendo/Decrescendo, didn't differentiate between the two :)
 ```
 ### 2.7 Additional modifiers
 ```
@@ -101,7 +101,7 @@ Fingering instructions will appear on the upper left corner of the note.
 ```
 Direction for a single note is represented as a single forward or backslash. For chords, the forward or backslash will additionally have smaller perpendicular dashes.
 ```
-\down{1}: Down strumming/bowing/etc. direction, lines adjusted based on where it is a single note or a chord.
+\down{1}: Down strumming/bowing/etc. direction
 \up{1}: Up _____''_____
 ```
 ## 3. Measures and bars

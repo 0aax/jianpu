@@ -34,14 +34,14 @@ X: Percussion (or placeholder for rhythms without pitch)
 \f{1}: Forte ____''____
 \mf{1}: Mezzo-forte ____''____
 \scresc{1}, \ecresc{4}: Crescendo, in example crescendo starts at 1 and ends at 4.
-\sdim{4}, \edim{1}: Diminuendo/Decrescendo, didn't differentiate between the two :), same pattern as crescendo.
+\sdim{4}, \edim{1}: Diminuendo/Decrescendo, didn't differentiate between the two :)
 
 \grace{1}: Grace note
 \chord{1, 2}, \chord{1, 2, 3}, etc.: Chords where each note is separated by a comma.
 \trem{1}: Tremolo on note 1.
 
 \fing{1, 2}: Fingering instructions. Example shown represents using finger 2 for note 1.
-\down{1}: Down strumming/bowing/etc. direction, lines adjusted based on where it is a single note or a chord.
+\down{1}: Down strumming/bowing/etc. direction
 \up{1}: Up _____''_____
 
 \bar: Single bar line
