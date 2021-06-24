@@ -13,9 +13,9 @@ Terribly temperamental program for [简谱 : jiǎnpǔ](https://en.wikipedia.org/
 All of the previous commands should wrapped in `\header{...}`.
 ```
 \header{
-    \title{Comp no. 1}
-    \inst{Kazoo}
-    \comp{Audrey X.}
+    \title{Comp no. 1},
+    \inst{Kazoo},
+    \comp{Audrey X.},
 }
 ```
 ### 1.2 Other relevant info, not exclusively confined to the header

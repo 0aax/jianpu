@@ -1,6 +1,6 @@
 \header{
-    \title{Comp no. 1}
-    \instrument{Liuqin}
+    \title{Comp no. 1},
+    \instrument{Liuqin},
     \composer{Audrey Xie}
 }
 
