@@ -6,4 +6,5 @@
 
 1 2 3 \down{\chord{1, 2}} \bar \qvr{4} 5 \dot{1} 2 \bar
 \up{1} 5 6 7 \lrep \dot{\roct{2}} \dot{2} 4 5 \rrep
-\chord{1, 2, 3, 4} \up{2} \fing{\trem{1}, 2} \bar \scresc{1} 2 3 4 \ecresc{3}
+\chord{1, 2, 3, 4} \up{2} \fing{\trem{1}, 2} \bar \scresc{1} 2 \ecresc{3} \bar
+\sqvr{\up{1}, \down{1}, \up{1}, \down{1}} \ebar

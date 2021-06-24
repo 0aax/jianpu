@@ -1,4 +1,5 @@
-[header [title Test One] [inst Liuqin] [comp Audrey Xie MIT]]
+[header [title Test One] [instrument Liuqin] [composer Audrey Xie MIT]]
 1 2 3 [down [chord 1 2]] [bar] [qvr 4] 5 [dot 1] 2 [bar]
 [up 1] 5 6 7 [lrep] [dot [roct 2]] [dot 2] 4 5 [rrep]
-[chord 1 2 3 4] [up 2] [trem [fing 1 2]] [bar] [scresc 1] 2 3 4 [ecresc 5]
+[chord 1 2 3 4] [up 2] [trem [fing 1 2]] [bar] [scresc 1] 2 4 [ecresc 5] [bar]
+[sqvr [down 1] [up 2] [down 3] [up 4]] [bar]
