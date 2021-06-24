@@ -5,11 +5,13 @@ def tokenize(txt, is_lst=False):
     """
     Given text of notes and 'operators', returns a string that can be evaluated easily (e.g str([flat 1] 2 [trem 2]) --> '[["flat", 1], 2, ["trem", 4]]')
     """
+    bars = {'bar', 'dbar', 'ebar', 'lrep', 'rrep'}
+    always_str = {'title', 'instrument', 'composer', 'affiliation', 'key'}
+
     def to_lst(txt):
         """
         Change txt from command format to list format.
         """
-        bars = {'bar', 'lrep', 'rrep'}
 
         lst = re.sub('\\\\([a-zA-Z]+){', r'[\1 ', txt)
         lst = lst.replace('}', ']')
@@ -41,7 +43,6 @@ def tokenize(txt, is_lst=False):
         """
         Helper function to make sure that strings will be evaluated as strings.
         """
-        always_str = {'title', 'instrument', 'composer', 'affiliation', 'key'}
         tmp = re.sub('\[([a-zA-Z]+),', r'["\1",', txt)   # [op, --> ['op',
         for s in always_str:
             tmp = re.sub('\["{}", (.*?)\]'.format(s), r'["{}", "\1"]'.format(s), tmp)
@@ -50,7 +51,7 @@ def tokenize(txt, is_lst=False):
 
     lst = to_lst(txt) if not is_lst else txt
     cleaned = clean(lst)
-    tkns = '[' + fix_strings(place_commas(cleaned)) + ']'
+    tkns = '[' + fix_strings(place_commas(cleaned)).strip() + ']'
 
     return tkns
 

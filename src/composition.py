@@ -9,7 +9,7 @@ paper_sizes = {'a4': (2480, 3508),
                'letter': (2550, 3300)}
 
 header_elems = {'title', 'comp', 'inst'}
-types_bars = {'bar', 'lrep', 'rrep'}
+types_bars = {'bar', 'dbar', 'ebar', 'lrep', 'rrep'}
 
 two_no_add_alloc = {'roct', 'loct'}
 n_no_add_alloc = {'qvr', 'sqvr', 'ccht', 'mm', 'sbrve'}
@@ -75,8 +75,8 @@ class Composition:
         parse_uni = []
         for n in parsed:
             if isinstance(n, int): parse_uni.append(['qtr', n])
-            elif n[0] in n_no_add_alloc:
-                for v in n[1:]: parse_uni.append([n[0], v])
+            # elif n[0] in n_no_add_alloc:
+            #     for v in n[1:]: parse_uni.append([n[0], v])
             else: parse_uni.append(n)
         return parse_uni
 
@@ -113,9 +113,13 @@ class Composition:
         def get_alloc(n):
             if isinstance(n, int) or n[0] in no_add_alloc: return 1
             elif n[0] in n_add_alloc_notes:
-                chord_alloc = 0
-                for e in n[1:]: chord_alloc += get_alloc(e)
-                return chord_alloc
+                n_alloc = 0
+                for e in n[1:]: n_alloc += get_alloc(e)
+                return n_alloc
+            elif n[0] in n_no_add_alloc:
+                n_alloc = []
+                for e in n[1:]: n_alloc += [get_alloc(e)]
+                return n_alloc
             else:
                 alloc_tmp = 1 if n[0] in add_alloc_notes else 0
                 return get_alloc(n[-1]) + alloc_tmp
@@ -123,7 +127,10 @@ class Composition:
         alloc = []
         for measure in barred_notes:
             measure_alloc = []
-            for n in measure: measure_alloc.append(get_alloc(n))
+            for n in measure:
+                alloc_tmp = get_alloc(n)
+                if isinstance(alloc_tmp, int): measure_alloc.append(alloc_tmp)
+                else: measure_alloc += alloc_tmp
             alloc.append(measure_alloc)
         return alloc
     
