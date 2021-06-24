@@ -1,6 +1,6 @@
 # jianpu
 
-Terribly temperamental program for [简谱 : jiǎnpǔ](https://en.wikipedia.org/wiki/Numbered_musical_notation) typesetting.
+Temperamental program for [简谱 : jiǎnpǔ](https://en.wikipedia.org/wiki/Numbered_musical_notation) typesetting.
 
 ## 1. Composition general information
 ### 1.1 Header-related commands
@@ -9,20 +9,20 @@ Terribly temperamental program for [简谱 : jiǎnpǔ](https://en.wikipedia.org/
 \composer{Name}: Composer name
 \affiliation{Institution}: Institutional affiliation
 \instrument{Name}: Instrument name
-```
-All of the previous commands should wrapped in `\header{...}`.
-```
-\header{
-    \title{Comp no. 1},
-    \inst{Kazoo},
-    \comp{Audrey X.},
-}
-```
-### 1.2 Other relevant info, not exclusively confined to the header
-```
 \time{4, 4}: Time signature
 \key{1=C}: Key signature
-\temp{100}: Tempo
+\tempo{100}: Tempo
+```
+All of the previous commands should wrapped in `\header{...}`. Changes in time, key, or tempo within the composition are not currently implemented.
+```
+\header{
+    \title{Composition no. 1},
+    \composer{0aax},
+    \instrument{柳琴},
+    \time{4, 4},
+    \key{1=C},
+    \tempo{100}
+}
 ```
 ## 2. Note-related commands
 ### 2.1 Representation of notes and/or other rhythms

@@ -1,7 +1,10 @@
 \header{
-    \title{Comp no. 1},
-    \instrument{Liuqin},
-    \composer{Audrey Xie}
+    \title{Composition no. 1},
+    \instrument{柳琴},
+    \composer{0aax},
+    \time{4, 4},
+    \key{1=C},
+    \tempo{100}
 }
 
 1 2 3 \down{\chord{1, 2}} \bar \qvr{4} 5 \dot{1} 2 \bar

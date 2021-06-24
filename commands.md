@@ -3,10 +3,9 @@
 \composer{Name}: Composer name
 \affiliation{Institution}: Institutional affiliation
 \instrument{Name}: Instrument name
-
 \time{4, 4}: Time signature
 \key{1=C}: Key signature
-\temp{100}: Tempo
+\tempo{100}: Tempo
 
 1, 2, ..., 7: Notes
 0: Rest
