@@ -3,7 +3,9 @@ import re
 
 def tokenize(txt, is_lst=False):
     """
-    Given text of notes and 'operators', returns a string that can be evaluated easily (e.g str([flat 1] 2 [trem 2]) --> '[["flat", 1], 2, ["trem", 4]]')
+    Given text of notes and 'operators', returns a string that can be evaluated easily.
+    - is_lst=True, (e.g str([flat 1] 2 [trem 2]) --> '[["flat", 1], 2, ["trem", 4]]')
+    - is_lst=False, (e.g str(\\flat{1} 2 \\trem{2}) --> '[["flat", 1], 2, ["trem", 4]]')
     """
     bars = {'bar', 'dbar', 'ebar', 'lrep', 'rrep'}
     always_str = {'title', 'instrument', 'composer', 'affiliation', 'key'}
@@ -12,7 +14,6 @@ def tokenize(txt, is_lst=False):
         """
         Change txt from command format to list format.
         """
-
         lst = re.sub('\\\\([a-zA-Z]+){', r'[\1 ', txt)
         lst = lst.replace('}', ']')
         for b in bars: lst = lst.replace('\\{}'.format(b), '[{}]'.format(b))
@@ -59,10 +60,8 @@ def parse(file, is_lst=False):
     """
     Parses all notes into elements of an array and returns parsed array.
     - Each entry has the form [foo(s), note], where foo represents some operator on the note.
-    - Foo(s) can be a single-element array or have multiple elements (i.e. [[quaver, dot], 1]).
-    - The only exception to this format are chords, in which the array will take the form: [[chord], [[foo1, ...], note1], [[foo2, ...], note2], ...]
+    - Foo(s) can be a single-element array or have multiple elements (i.e. [quaver, [dot, 1]]).
     """
-    
     fl = open(file)
     txt = fl.read().replace('\n', ' ')
     tkns = ast.literal_eval(tokenize(txt, is_lst=is_lst))
@@ -70,4 +69,4 @@ def parse(file, is_lst=False):
     return tkns
 
 if __name__ == '__main__':
-    print(parse('test_inputs/test_1.txt', is_lst=True))
+    pass
