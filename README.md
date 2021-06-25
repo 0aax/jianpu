@@ -58,14 +58,17 @@ X: Percussion (or placeholder for rhythms without pitch)
 \mm{1}: minim, half
 \sbrve{1}: semibreve, whole
 ```
-All duration operators can handle notes of any form (i.e. ones that have been raised or lowered octaves)
+All duration operators can handle notes of any form (i.e. ones that have been raised or lowered octaves).
 ```
 \qvr{\roct{4, 1}}
-\sbrve{\loct{3, 2}}
 ```
 Additionally, the operators from `(2)` can take any number notes.
 ```
 \sqvr{1, 2, 3, 4}
+```
+To group notes of different durations, use `\group{...}`.
+```
+\group{\qvr{1}, \sqvr{1, 2}}
 ```
 ### 2.5 Extensions
 The notes starting and ending a tie should be consecutive.
