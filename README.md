@@ -13,7 +13,7 @@ Temperamental program for [简谱 : jiǎnpǔ](https://en.wikipedia.org/wiki/Numb
 \key{1=C}: Key signature
 \tempo{100}: Tempo
 ```
-All of the previous commands should wrapped in `\header{...}`. Changes in time, key, or tempo within the composition are not currently implemented.
+All of the previous commands should wrapped in `\header{...}`. Changes in key or tempo within the composition are not currently implemented (but will be implemented in the future).
 ```
 \header{
     \title{Composition no. 1},
@@ -23,6 +23,11 @@ All of the previous commands should wrapped in `\header{...}`. Changes in time, 
     \key{1=C},
     \tempo{100}
 }
+```
+### 1.2 Not strictly relegated to header commands
+The time signature will show up anywhere you put it.
+```
+\bar \time{2, 4} 1 1 \bar
 ```
 ## 2. Note-related commands
 ### 2.1 Representation of notes and/or other rhythms
