@@ -133,3 +133,6 @@ dmypy.json
 
 # tests
 /tests
+
+# fonts
+*.sfd
