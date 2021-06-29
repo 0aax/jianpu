@@ -35,6 +35,7 @@ The time signature will show up anywhere you put it.
 1, 2, ..., 7: Notes
 0: Rest
 X: Percussion (or placeholder for rhythms without pitch)
+-: Extend note
 ```
 ### 2.2 Octaves
 ```
