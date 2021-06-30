@@ -1,40 +1,6 @@
-from PIL import Image, ImageDraw
-
-# default values
-measures_per_row = 6
-
-dpi = 300 # typical print dpi
-paper_sizes = {'a4': (2480, 3508),
-               'letter': (2550, 3300)}
-
-header_elems = {'title', 'composer', 'instrument', 'affiliation', 'time', 'key', 'tempo'}
-types_measures = {'bar', 'dbar', 'ebar', 'lrep', 'rrep'}
-
-two_no_add_halloc = {'roct', 'loct'}
-n_no_add_halloc = {'qvr', 'sqvr', 'ccht', 'mm', 'sbrve'}
-no_add_halloc = two_no_add_halloc | n_no_add_halloc | types_measures
-
-one_add_halloc_notes = {'down', 'up', 'trem', 'grace', 'scresc', 'ecresc', 'sdim', 'edim'}
-two_add_halloc_notes = {'fing'}
-n_add_halloc_notes = {'chord'}
-add_halloc_notes = one_add_halloc_notes | two_add_halloc_notes | n_add_halloc_notes
-
-two_commands = two_no_add_halloc | two_add_halloc_notes
-n_commands = n_add_halloc_notes | n_no_add_halloc | {'group'}
-
-pitch = {'roct', 'loct', 'sharp', 'flat', 'natural'}
-
-# note width scaling factors
-note_base_width = 50
-base_note_spacer = 30
-
-notes_space = {'sqvr': 10,
-               'qvr': 20,
-               'ccht': 30,
-               'mm': 50,
-               'sbrve': 70}
-
-duration = {'sqvr', 'qvr', 'ccht', 'mm', 'sbrve'}
+from PIL import Image
+from src.config import *
+from src.utils import deep_sum
 
 class Composition:
     def __init__(self, parsed=list(), paper_type='letter', margins=[75, 75, 75, 75]):
@@ -54,12 +20,12 @@ class Composition:
         self.measured_notes = self.gen_measured_notes(self.notes)
         self.only_notes = self.gen_only_notes(self.measured_notes, grouped=False)
         self.only_dur_group = self.gen_only_dur_group(self.measured_notes)
-        self.notes_height_alloc = self.gen_notes_height_alloc(self.measured_notes)
-        self.notes_width_alloc = self.gen_notes_width_alloc(self.only_dur_group)
+        self.notes_height_alloc = self.gen_notes_height_alloc(self.only_notes)
+        self.approx_notes_width_alloc = self.gen_approx_notes_width_alloc(self.only_dur_group)
         # self.only_notes_grouped = self.gen_only_notes(self.measured_notes, grouped=True)
 
         self.measure_heights = self.gen_measure_heights(self.notes_height_alloc)
-        self.measure_widths = self.gen_measure_widths(self.notes_width_alloc)
+        self.approx_measure_widths = self.gen_approx_measure_widths(self.approx_notes_width_alloc)
     
     def set_header_height(self, height):
         """
@@ -113,7 +79,7 @@ class Composition:
         measured_notes = []
         curr_bar = []
         for n in notes:
-            if n[0] in types_measures:
+            if n[0] in types_bars:
                 measured_notes.append(curr_bar)
                 curr_bar = []
             else: curr_bar.append(n)
@@ -126,8 +92,8 @@ class Composition:
         - grouped=False, notes that are part of the same group will not be nested in a separate array
         - grouped=True, notes that are grouped will be put into a separate array
         """
-        if grouped: nest_array = n_add_halloc_notes | {'group'}
-        else: nest_array = n_add_halloc_notes
+        if grouped: nest_array = {'chord', 'group'}
+        else: nest_array = {'chord'}
 
         def get_note(n):
             if isinstance(n, int): return [n]
@@ -143,7 +109,9 @@ class Composition:
         notes = []
         for measure in measured_notes:
             measure_notes = []
-            for n in measure: measure_notes += get_note(n)
+            for n in measure:
+                if isinstance(n, list) and n[0] == 'time': continue
+                else: measure_notes += get_note(n)
             notes.append(measure_notes)
         return notes
 
@@ -158,69 +126,53 @@ class Composition:
             elif n[0] in dur_group_set:
                 dur_group_tmp = [n[0]] + [get_dur_group(e) for e in n[1:]]
                 return dur_group_tmp
-            elif n[0] == 'chord': return get_dur_group(n[1])
+            elif n[0] == 'chord': # only the uppermost note matters for this particular case
+                return [n[0]] + [get_dur_group(n[1])]
             else: return get_dur_group(n[1])
 
         dur_group = []
         for measure in measured_notes:
-            dur_group_measure = [get_dur_group(n) for n in measure]
-            dur_group.append(dur_group_measure)
+            measure_dur_group = []
+            for n in measure:
+                if isinstance(n, list) and n[0] == 'time': continue
+                else: measure_dur_group.append(get_dur_group(n))
+            dur_group.append(measure_dur_group)
         return dur_group
 
-    def gen_notes_height_alloc(self, measured_notes):
+    def gen_notes_height_alloc(self, only_notes):
         """
         Given an input that has already been grouped into measures, returns height allocation for notes.
         """
+        notes_op = {'roct', 'loct'}
+        
         def get_halloc(n):
             if isinstance(n, int): return 1
-            elif n[0] == 'group':
-                n_alloc = []
-                for e in n[1:]:
-                    n_alloc_tmp = get_halloc(e)
-                    if isinstance(n_alloc_tmp, int): n_alloc.append(n_alloc_tmp)
-                    else: n_alloc += n_alloc_tmp
-                return n_alloc
-            elif n[0] in n_add_halloc_notes:
-                n_alloc = 0
-                for e in n[1:]: n_alloc += get_halloc(e)
-                return n_alloc
-            elif n[0] in n_no_add_halloc:
-                n_alloc = []
-                for e in n[1:]: n_alloc += [get_halloc(e)]
-                return n_alloc
-            else:
-                alloc_tmp = 1 if n[0] in add_halloc_notes else 0
-                return get_halloc(n[-1]) + alloc_tmp
+            elif isinstance(n[0], str) and n[0] in notes_op: return get_halloc(n[1])
+            else: return len(n)
         
-        halloc = []
-        for measure in measured_notes:
-            measure_alloc = []
-            for n in measure:
-                alloc_tmp = get_halloc(n)
-                if isinstance(alloc_tmp, int): measure_alloc.append(alloc_tmp)
-                else: measure_alloc += alloc_tmp
-            halloc.append(measure_alloc)
+        halloc = [[get_halloc(n) for n in measure] for measure in only_notes]
         return halloc
     
-    def gen_notes_width_alloc(self, dur_group_notes):
+    def gen_approx_notes_width_alloc(self, dur_group_notes):
         """
         Given an input that has already been grouped into measures and has indicators for durations and groups, returns width allocation for notes.
         """
         def get_walloc(n):
-            if isinstance(n, int): return note_base_width
+            if isinstance(n, int): return note_base_width + notes_space['ccht']
             elif n[0] in duration:
-                n_count = len(n[1:])
-                return note_base_width * n_count + notes_space[n[0]] * (n_count - 1)
+                notes_tmp = n[1:]
+                n_count = len(notes_tmp)
+                if n_count > 1:
+                    n_alloc = [note_base_width + notes_space[n[0]] for v in notes_tmp]
+                    return n_alloc
+                else:
+                    return note_base_width + notes_space[n[0]]
             elif n[0] == 'group':
                 n_alloc = [get_walloc(e) for e in n[1:]]
                 return n_alloc
-            else: return note_base_width
+            else: return note_base_width + notes_space['ccht']
 
-        walloc = []
-        for measure in dur_group_notes:
-            measure_alloc = [get_walloc(n) for n in measure]
-            measure_alloc.append(base_note_spacer * (len(measure_alloc) - 1))
-            walloc.append(measure_alloc)
+        walloc = [[get_walloc(n) for n in measure] for measure in dur_group_notes]
         return walloc
 
     def gen_measure_heights(self, heights):
@@ -230,16 +182,9 @@ class Composition:
         max_h = [max(m) for m in heights]
         return max_h
     
-    def gen_measure_widths(self, widths):
+    def gen_approx_measure_widths(self, widths):
         """
         Given array of note widths that have already been divided into measures, returns an array of the widths for each measure.
         """
-        def deep_sum(n):
-            """
-            Returns the sum of an array that may have nested arrays.
-            """
-            if isinstance(n, int): return n
-            else: return sum([deep_sum(e) for e in n])
-
         width_m = [deep_sum(m) for m in widths]
         return width_m
