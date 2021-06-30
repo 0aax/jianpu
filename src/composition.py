@@ -72,7 +72,7 @@ class Composition:
             else: notes_tmp.append(n)
         return header, notes_tmp
 
-    def gen_measured_notes(self, notes):
+    def gen_measured_notes(self, notes, with_bar=False):
         """
         Re-organizes notes such that all notes in a bar are grouped in an array.
         """
@@ -80,7 +80,8 @@ class Composition:
         curr_bar = []
         for n in notes:
             if n[0] in types_bars:
-                measured_notes.append(curr_bar)
+                if with_bar: measured_notes.append(curr_bar + [n])
+                else: measured_notes.append(curr_bar)
                 curr_bar = []
             else: curr_bar.append(n)
         if len(curr_bar) != 0: measured_notes.append(curr_bar)
@@ -119,7 +120,6 @@ class Composition:
         """
         Given an input that has already been grouped into measures, returns all notes. Notes that are part of a group or have a duration will have an additional indicator. Only the first note of a chord will appear as a placeholder.
         """
-        dur_group_set = {'group', 'grace'} | duration
         
         def get_dur_group(n):
             if isinstance(n, int): return n
@@ -144,7 +144,7 @@ class Composition:
         Given an input that has already been grouped into measures, returns height allocation for notes.
         """
         notes_op = {'roct', 'loct'}
-        
+
         def get_halloc(n):
             if isinstance(n, int): return 1
             elif isinstance(n[0], str) and n[0] in notes_op: return get_halloc(n[1])

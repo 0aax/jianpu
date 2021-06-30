@@ -1,6 +1,12 @@
-from PIL import Image, ImageDraw
+import itertools as it
 
-def arrange_notes(approx_widths, only_notes, available_horiz_space=2550):
+from PIL import Image, ImageDraw
+from src.config import *
+
+def arrange_lines(approx_widths, only_notes, available_horiz_space=2550):
+    """
+    Given approximate measure widths, arranges measures (and the notes contained in each measure) into lines using a greedy approach.
+    """
     lines_prelim = {}
     curr_line_num = 0
     curr_avail_space = available_horiz_space
@@ -27,3 +33,86 @@ def arrange_notes(approx_widths, only_notes, available_horiz_space=2550):
 
     return lines
 
+def gen_primary_line(measured_notes):
+
+    def get_elems(n):
+        if isinstance(n, int): return n
+        elif n[0] in no_param_elems_primary_line: return n
+        elif n[0] in one_param_elems_primary_line: return [n[0], get_elems(n[1])]
+        elif n[0] in two_param_elems_primary_line: return [n[0], get_elems(n[1]), n[2]]
+        elif n[0] in dur_group_set:
+            dur_group_tmp = [n[0]] + [get_elems(e) for e in n[1:]]
+            return dur_group_tmp
+        # elif n[0] == 'chord': # only the uppermost note matters for this particular case
+        #     return get_elems(n[1])
+        else: return get_elems(n[1])
+    
+    notes_line = []
+    for measure in measured_notes:
+        measure_dur_group = []
+        for n in measure:
+            measure_dur_group.append(get_elems(n))
+        notes_line.append(measure_dur_group)
+    return notes_line
+
+def gen_notes_width_alloc(primary_line):
+    """
+    Returns a character-by-character array of the primary line, as well as a corresponding array containing the exact width allocation.
+    """
+    def get_walloc(n):
+        if isinstance(n, int): return [n], [note_base_width]
+        elif n[0] == 'time': return ['time', 'space'], [note_base_width, space_base_width]
+        elif n[0] in types_bars: return [n[0]], [bar_spacers[n[0]]]
+        elif n[0] in one_param_elems_primary_line_back:
+            n_tmp, n_alloc = get_walloc(n[1])
+            return n_tmp + [n[0]], n_alloc + [15]
+        elif n[0] in one_param_elems_primary_line_front:
+            n_tmp, n_alloc = get_walloc(n[1])
+            return [n[0]] + n_tmp, [note_base_width] + n_alloc
+        elif n[0] in duration:
+            notes_tmp = n[1:]
+            k = space_factors[n[0]]
+            n_tmp, n_alloc = [], []
+            for v in notes_tmp:
+                v_tmp, v_alloc = get_walloc(v)
+                n_tmp += v_tmp + ['space']*k
+                n_alloc += v_alloc + [space_base_width]*k
+            return n_tmp, n_alloc
+        elif n[0] == 'group':
+            n_walloc = [get_walloc(e) for e in n[1:]]
+            n_tmp, n_alloc = zip(*n_walloc)
+            n_tmp = [l for v in n_tmp for l in v]
+            n_alloc = [l for v in n_alloc for l in v]
+            return n_tmp, n_alloc
+        else: return [n], [note_base_width]
+    
+    def count_comp(lst, comp='space'):
+        """
+        Counts to number of continuous 'comp' instances from the front of the list
+        """
+        num_comp = 0
+        for n in lst:
+            if n == comp: num_comp += 1
+            else: break
+        return num_comp
+
+    walloc = []
+    notes = []
+    for measure in primary_line:
+        measure_alloc = [get_walloc(n) for n in measure]
+        notes_tmp, walloc_tmp = zip(*measure_alloc)
+        notes_tmp = [l for v in notes_tmp for l in v]
+        walloc_tmp = [l for v in walloc_tmp for l in v]
+        num_space = count_comp(notes_tmp[-2:-5:-1]) # last 4 elements excluding the bar
+        no_bar_notes, no_bar_walloc = notes_tmp[:-1], walloc_tmp[:-1]
+        bar_notes, bar_walloc = notes_tmp[-1], walloc_tmp[-1]
+        if num_space < 2:
+            notes_tmp = no_bar_notes + ['space']*(2-num_space) + [bar_notes]
+            walloc_tmp = no_bar_walloc + [15]*(2-num_space) + [bar_walloc]
+        elif num_space > 2:
+            notes_tmp = no_bar_notes[:(2-num_space)] + [bar_notes]
+            walloc_tmp = no_bar_walloc[:(2-num_space)] + [bar_walloc]
+
+        notes += ['space'] * 2 + notes_tmp
+        walloc += [15] * 2 + walloc_tmp
+    return notes, walloc

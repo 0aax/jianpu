@@ -24,13 +24,13 @@ pitch = {'roct', 'loct', 'sharp', 'flat', 'natural'}
 
 # note width scaling factors
 note_base_width = 30
-base_spacer = int(30/2)
+space_base_width = int(30/2)
 
-notes_space = {'sqvr': base_spacer*1,
-               'qvr': base_spacer*2,
-               'ccht': base_spacer*3,
-               'mm': base_spacer*4,
-               'sbrve': base_spacer*5}
+notes_space = {'sqvr': space_base_width*1,
+               'qvr': space_base_width*2,
+               'ccht': space_base_width*3,
+               'mm': space_base_width*4,
+               'sbrve': space_base_width*5}
 
 space_factors = {'sqvr': 1,
                 'qvr': 2,
@@ -38,8 +38,20 @@ space_factors = {'sqvr': 1,
                 'mm': 4,
                 'sbrve': 5}
 
+bar_spacers = {'bar': space_base_width,
+               'dbar': space_base_width,
+               'ebar': space_base_width,
+               'lrep': note_base_width,
+               'rrep': note_base_width}
+
 duration = {'sqvr', 'qvr', 'ccht', 'mm', 'sbrve'}
+dur_group_set = {'group', 'grace'} | duration
 
 l_marg, r_marg = 150, 150
 
-elems_notes_line = {'ddot', 'dot', 'sharp', 'flat', 'natural', 'grace', 'fing'} | types_bars
+no_param_elems_primary_line = {'time'} | types_bars
+one_param_elems_primary_line_front = {'grace', 'sharp', 'flat', 'natural'}
+one_param_elems_primary_line_back = {'ddot', 'dot'}
+two_param_elems_primary_line = {'fing'}
+
+one_param_elems_primary_line = one_param_elems_primary_line_front | one_param_elems_primary_line_back
