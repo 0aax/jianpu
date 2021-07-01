@@ -54,10 +54,10 @@ class Composition:
         """
         parse_uni = []
         for n in parsed:
-            if isinstance(n, int): parse_uni.append(['ccht', n])
+            # if isinstance(n, int): parse_uni.append(['ccht', n])
             # elif n[0] in n_no_add_halloc:
             #     for v in n[1:]: parse_uni.append([n[0], v])
-            else: parse_uni.append(n)
+            parse_uni.append(n)
         return parse_uni
 
     def split_header_notes(self, uni_parsed):
@@ -67,7 +67,8 @@ class Composition:
         notes_tmp = []
         header = []
         for n in uni_parsed:
-            if n[0] == 'header':
+            if isinstance(n, int): notes_tmp.append(n)
+            elif n[0] == 'header':
                 header = self.gen_header_info(n[1:])
             else: notes_tmp.append(n)
         return header, notes_tmp
@@ -79,7 +80,8 @@ class Composition:
         measured_notes = []
         curr_bar = []
         for n in notes:
-            if n[0] in types_bars:
+            if isinstance(n, int): curr_bar.append(n)
+            elif n[0] in types_bars:
                 if with_bar: measured_notes.append(curr_bar + [n])
                 else: measured_notes.append(curr_bar)
                 curr_bar = []

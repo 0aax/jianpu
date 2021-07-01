@@ -32,17 +32,18 @@ notes_space = {'sqvr': space_base_width*1,
                'mm': space_base_width*4,
                'sbrve': space_base_width*5}
 
-space_factors = {'sqvr': 1,
-                'qvr': 2,
-                'ccht': 3,
-                'mm': 4,
-                'sbrve': 5}
+# space_factors = {'sqvr': 1,
+#                 'qvr': 2,
+#                 'ccht': 3,
+#                 'mm': 4,
+#                 'sbrve': 5}
 
-bar_spacers = {'bar': space_base_width,
-               'dbar': space_base_width,
-               'ebar': space_base_width,
-               'lrep': note_base_width,
-               'rrep': note_base_width}
+# bar_spacers = {'bar': space_base_width,
+#                'dbar': space_base_width,
+#                'lebar': space_base_width,
+#                'rebar': space_base_width,
+#                'lrep': note_base_width,
+#                'rrep': note_base_width}
 
 duration = {'sqvr', 'qvr', 'ccht', 'mm', 'sbrve'}
 dur_group_set = {'group', 'grace'} | duration
@@ -55,3 +56,36 @@ one_param_elems_primary_line_back = {'ddot', 'dot'}
 two_param_elems_primary_line = {'fing'}
 
 one_param_elems_primary_line = one_param_elems_primary_line_front | one_param_elems_primary_line_back
+
+sym_factor = {  'bar': 1,
+                'dbar': 1,
+                'lebar': 1,
+                'rebar': 1,
+                'lrep': 2,
+                'rrep': 2,
+
+                'sqvr': 1,
+                'qvr': 2,
+                'ccht': 3,
+                'mm': 4,
+
+                'sbrve': 5,
+                'sharp': 1,
+                'flat': 1,
+
+                'natural': 1,
+                'dot': 1, 
+                'ddot': 2}
+
+sym = {'bar': '|',
+       'lebar': '[',
+       'rebar': ']',
+       'lrep': '{',
+       'rrep': '}',
+
+       'sharp': 's',
+       'flat': 'b',
+       'natural': 'n',
+       
+       'dot': '.',
+       'ddot': '..'}
