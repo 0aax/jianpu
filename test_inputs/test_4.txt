@@ -1,0 +1,7 @@
+\time{2, 4} \group{\qvr{\dot{\down{\chord{\roct{2}, \roct{1}, 1}}}}, \sqvr{\up{1}}} \group{\qvr{\down{2}}, \sqvr{\down{5}, \up{6}}} \bar
+\down{3} \group{\qvr{\down{3}}, \sqvr{5, 6}} \bar
+\sqvr{\down{\roct{3}}, \up{\roct{5}}, \down{\roct{3}}, \up{\roct{2}}} \down{\roct{3}} \bar
+\group{\qvr{\dot{\down{1}}}, \sqvr{\up{1}}} \group{\qvr{\down{2}}, \sqvr{\down{5}, \up{6}}} \bar
+\down{3} \group{\qvr{\down{3}}, \sqvr{5, 6}} \bar
+\sqvr{\down{3}, \up{5}, \down{3}, \up{2}} \down{3} \bar
+3 3 3 3 \bar
