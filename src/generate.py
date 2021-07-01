@@ -1,7 +1,33 @@
 from PIL import Image, ImageDraw
 from src.config import *
 
-def gen_primary_line(measured_notes):
+def get_direction_line(measured_notes):
+    """
+    Given measured notes, returns an array of notes and the corresponding directions.
+    """
+    def get_note(n):
+        if isinstance(n, int): return n
+        else: return get_note(n[1])
+
+    def get_elems(n):
+        if isinstance(n, int): return [n]
+        elif n[0] in no_param_elems: return [n]
+        elif n[0] in directions: return [[n[0], get_note(n)]]
+        elif n[0] in dur_group_set:
+            dur_group_tmp = []
+            for e in n[1:]: dur_group_tmp += get_elems(e)
+            return dur_group_tmp
+        else: return get_elems(n[1])
+    
+    directions_line = []
+    for measure in measured_notes:
+        directions_measure = []
+        for n in measure:
+            if isinstance(n, list) and n[0] != 'time': directions_measure += get_elems(n)
+        directions_line += directions_measure
+    return directions_line
+
+def get_primary_line(measured_notes):
     """
     Given measured notes, returns an array of notes and the corresponding operators that appear on the primary line.
     """
@@ -18,13 +44,8 @@ def gen_primary_line(measured_notes):
         #     return get_elems(n[1])
         else: return get_elems(n[1])
     
-    notes_line = []
-    for measure in measured_notes:
-        measure_dur_group = []
-        for n in measure:
-            measure_dur_group.append(get_elems(n))
-        notes_line.append(measure_dur_group)
-    return notes_line
+    primary_line = [[get_elems(n) for n in measure] for measure in measured_notes]
+    return primary_line
 
 def gen_primary_line_str(primary_line):
     """
@@ -97,6 +118,7 @@ def gen_primary_line_str(primary_line):
         if first_measure:
             notes += notes_tmp
             walloc += walloc_tmp
+            first_measure = False
         else:
             notes += '  ' + notes_tmp
             walloc += 30 + walloc_tmp
@@ -108,3 +130,7 @@ def list_from_string(string):
     Returns an array from a string.
     """
     return [e for e in string]
+
+def match_primary_direction(primary, direction):
+    primary_tmp = primary.copy()
+    
