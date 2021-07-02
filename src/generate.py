@@ -125,12 +125,27 @@ def gen_primary_line_str(primary_line):
 
     return notes, walloc
 
-def list_from_string(string):
-    """
-    Returns an array from a string.
-    """
-    return [e for e in string]
-
 def match_primary_direction(primary, direction):
-    primary_tmp = primary.copy()
-    
+    def arr_from_string(string):
+        """
+        Returns an array from a string.
+        """
+        return [e for e in string]
+
+    primary_tmp = arr_from_string(primary)
+
+    len_prim, len_dir = len(primary), len(direction)
+    i_prim, i_dir = 0, 0
+    while i_dir < len_dir:
+        curr_prim, curr_dir = primary[i_prim], direction[i_dir]
+        if isinstance(curr_dir, list): # note has direction
+            if curr_prim == curr_dir[1]:
+                primary_tmp[i_prim] = sym[curr_dir[0]]
+                i_prim += 1
+                i_dir += 1
+            else:
+                primary_tmp[i_prim] = ' '
+                i_prim += 1
+        else:
+            primary_tmp[i_dir] = ' '
+            i_dir += 1
