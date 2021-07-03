@@ -11,7 +11,7 @@ def get_direction_line(measured_notes):
 
     def get_elems(n):
         if isinstance(n, int): return [n]
-        elif n[0] in no_param_elems: return [n]
+        elif n[0] in no_param_elems: return n
         elif n[0] in directions: return [[n[0], get_note(n)]]
         elif n[0] in dur_group_set:
             dur_group_tmp = []
@@ -23,7 +23,7 @@ def get_direction_line(measured_notes):
     for measure in measured_notes:
         directions_measure = []
         for n in measure:
-            if isinstance(n, list) and n[0] != 'time': directions_measure += get_elems(n)
+            if not (isinstance(n, list) and n[0] == 'time'): directions_measure += get_elems(n)
         directions_line += directions_measure
     return directions_line
 
@@ -126,6 +126,9 @@ def gen_primary_line_str(primary_line):
     return notes, walloc
 
 def match_primary_direction(primary, direction):
+    """
+    Given the string form of the primary line and an array notes and their corresponding directions, returns a string of the direction.
+    """
     def arr_from_string(string):
         """
         Returns an array from a string.
@@ -138,14 +141,20 @@ def match_primary_direction(primary, direction):
     i_prim, i_dir = 0, 0
     while i_dir < len_dir:
         curr_prim, curr_dir = primary[i_prim], direction[i_dir]
-        if isinstance(curr_dir, list): # note has direction
-            if curr_prim == curr_dir[1]:
+        if curr_prim.isdigit():
+            if isinstance(curr_dir, list) and int(curr_prim) == curr_dir[1]:
                 primary_tmp[i_prim] = sym[curr_dir[0]]
+                i_prim += 1
+                i_dir += 1
+            elif int(curr_prim) == curr_dir:
+                primary_tmp[i_prim] = ' '
                 i_prim += 1
                 i_dir += 1
             else:
                 primary_tmp[i_prim] = ' '
                 i_prim += 1
         else:
-            primary_tmp[i_dir] = ' '
-            i_dir += 1
+            primary_tmp[i_prim] = ' '
+            i_prim += 1
+    primary_tmp[-1] = ' ' # end bar
+    return ''.join(primary_tmp)
