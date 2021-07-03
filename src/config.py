@@ -10,7 +10,7 @@ types_bars = {'bar', 'dbar', 'ebar', 'lrep', 'rrep'}
 
 n_commands = {'chord', 'group', 'qvr', 'sqvr', 'ccht', 'mm', 'sbrve'}
 
-pitch = {'roct', 'loct', 'sharp', 'flat', 'natural'}
+pitch = {'oct', 'sharp', 'flat', 'natural'}
 
 # note width scaling factors
 note_base_width = 30
@@ -35,7 +35,7 @@ two_param_elems_primary_line = {'fing'}
 one_param_elems_primary_line = one_param_elems_primary_line_front | one_param_elems_primary_line_back
 
 directions = {'down', 'up'}
-octaves = {'roct', 'loct'}
+octaves = {'oct'}
 no_param_elems = types_bars
 
 sym_factor = {  'bar': 1,
@@ -74,5 +74,6 @@ sym = {'bar': '|',
        'down': '\\',
        'up': '/'}
 
-roct_sym = {1: '\'',
-            2: '"'}
+oct_sym = {-1: '\'', # TODO: Change this to the actual symbol later
+           1: '\'',
+           2: '"'}

@@ -15,13 +15,13 @@ def get_target_group_line(measured_notes, target_group={}, target_func=(lambda n
             return dur_group_tmp
         else: return get_elems(n[1])
     
-    directions_line = []
+    tg_line = []
     for measure in measured_notes:
-        directions_measure = []
+        tg_measure = []
         for n in measure:
-            if not (isinstance(n, list) and n[0] == 'time'): directions_measure += get_elems(n)
-        directions_line += directions_measure
-    return directions_line
+            if not (isinstance(n, list) and n[0] == 'time'): tg_measure += get_elems(n)
+        tg_line += tg_measure
+    return tg_line
 
 def get_primary_line(measured_notes):
     """
@@ -121,9 +121,9 @@ def gen_primary_line_str(primary_line):
 
     return notes, walloc
 
-def match_primary_direction(primary, direction):
+def match_primary_target_group(primary, target_group, target_sym=(lambda x: None)):
     """
-    Given the string form of the primary line and an array notes and their corresponding directions, returns a string of the direction.
+    Given the string form of the primary line and an array notes and their corresponding directions, returns a string of the target group.
     """
     def arr_from_string(string):
         """
@@ -133,13 +133,13 @@ def match_primary_direction(primary, direction):
 
     primary_tmp = arr_from_string(primary)
 
-    len_prim, len_dir = len(primary), len(direction)
+    len_prim, len_dir = len(primary), len(target_group)
     i_prim, i_dir = 0, 0
     while i_dir < len_dir:
-        curr_prim, curr_dir = primary[i_prim], direction[i_dir]
+        curr_prim, curr_dir = primary[i_prim], target_group[i_dir]
         if curr_prim.isdigit():
             if isinstance(curr_dir, list) and int(curr_prim) == curr_dir[1]:
-                primary_tmp[i_prim] = cfg.sym[curr_dir[0]]
+                primary_tmp[i_prim] = target_sym(curr_dir)
                 i_prim += 1
                 i_dir += 1
             elif int(curr_prim) == curr_dir:
