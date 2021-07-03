@@ -1,6 +1,7 @@
 from PIL import Image
-from src.config import *
 from src.utils import deep_sum
+
+import src.config as cfg
 
 class Composition:
     def __init__(self, parsed=list(), paper_type='letter', margins=[75, 75, 75, 75]):
@@ -10,7 +11,7 @@ class Composition:
         self.uniform_parsed = self.gen_uniform_parse(parsed)
         self.header, self.notes = self.split_header_notes(self.uniform_parsed)
         
-        self.paper = Image.new('RGB', paper_sizes[paper_type], (255, 255, 255))
+        self.paper = Image.new('RGB', cfg.paper_sizes[paper_type], (255, 255, 255))
         self.margins = {'top': margins[0], 'right': margins[1], 'bottom': margins[2], 'left': margins[3]} # initally set to quarter-inch margins on all sides
 
         self.header_height = 0
@@ -81,7 +82,7 @@ class Composition:
         curr_bar = []
         for n in notes:
             if isinstance(n, int): curr_bar.append(n)
-            elif n[0] in types_bars:
+            elif n[0] in cfg.types_bars:
                 if with_bar: measured_notes.append(curr_bar + [n])
                 else: measured_notes.append(curr_bar)
                 curr_bar = []
@@ -100,8 +101,8 @@ class Composition:
 
         def get_note(n):
             if isinstance(n, int): return [n]
-            elif n[0] in pitch: return [[n[0]] + get_note(n[1])]
-            elif n[0] in n_commands:
+            elif n[0] in cfg.pitch: return [[n[0]] + get_note(n[1])]
+            elif n[0] in cfg.n_commands:
                 n_notes = []
                 for e in n[1:]: n_notes += get_note(e)
                 n_notes = [n_notes] if n[0] in nest_array else n_notes
@@ -125,7 +126,7 @@ class Composition:
         
         def get_dur_group(n):
             if isinstance(n, int): return n
-            elif n[0] in dur_group_set:
+            elif n[0] in cfg.dur_group_set:
                 dur_group_tmp = [n[0]] + [get_dur_group(e) for e in n[1:]]
                 return dur_group_tmp
             elif n[0] == 'chord': # only the uppermost note matters for this particular case
@@ -160,19 +161,19 @@ class Composition:
         Given an input that has already been grouped into measures and has indicators for durations and groups, returns width allocation for notes.
         """
         def get_walloc(n):
-            if isinstance(n, int): return note_base_width + notes_space['ccht']
-            elif n[0] in duration:
+            if isinstance(n, int): return cfg.note_base_width + cfg.notes_space['ccht']
+            elif n[0] in cfg.duration:
                 notes_tmp = n[1:]
                 n_count = len(notes_tmp)
                 if n_count > 1:
-                    n_alloc = [note_base_width + notes_space[n[0]] for v in notes_tmp]
+                    n_alloc = [cfg.note_base_width + cfg.notes_space[n[0]] for v in notes_tmp]
                     return n_alloc
                 else:
-                    return note_base_width + notes_space[n[0]]
+                    return cfg.note_base_width + cfg.notes_space[n[0]]
             elif n[0] == 'group':
                 n_alloc = [get_walloc(e) for e in n[1:]]
                 return n_alloc
-            else: return note_base_width + notes_space['ccht']
+            else: return cfg.note_base_width + cfg.notes_space['ccht']
 
         walloc = [[get_walloc(n) for n in measure] for measure in dur_group_notes]
         return walloc

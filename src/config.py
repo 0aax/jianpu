@@ -35,6 +35,7 @@ two_param_elems_primary_line = {'fing'}
 one_param_elems_primary_line = one_param_elems_primary_line_front | one_param_elems_primary_line_back
 
 directions = {'down', 'up'}
+octaves = {'roct', 'loct'}
 no_param_elems = types_bars
 
 sym_factor = {  'bar': 1,
@@ -72,3 +73,6 @@ sym = {'bar': '|',
        
        'down': '\\',
        'up': '/'}
+
+roct_sym = {1: '\'',
+            2: '"'}

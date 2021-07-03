@@ -1,19 +1,15 @@
 from PIL import Image, ImageDraw
-from src.config import *
+import src.config as cfg
 
-def get_direction_line(measured_notes):
+def get_target_group_line(measured_notes, target_group={}, target_func=(lambda n0: None)):
     """
-    Given measured notes, returns an array of notes and the corresponding directions.
+    Given measured notes, returns an array of notes and the corresponding target group operators.
     """
-    def get_note(n):
-        if isinstance(n, int): return n
-        else: return get_note(n[1])
-
     def get_elems(n):
         if isinstance(n, int): return [n]
-        elif n[0] in no_param_elems: return n
-        elif n[0] in directions: return [[n[0], get_note(n)]]
-        elif n[0] in dur_group_set:
+        elif n[0] in cfg.no_param_elems: return n
+        elif n[0] in target_group: return target_func(n)
+        elif n[0] in cfg.dur_group_set:
             dur_group_tmp = []
             for e in n[1:]: dur_group_tmp += get_elems(e)
             return dur_group_tmp
@@ -34,10 +30,10 @@ def get_primary_line(measured_notes):
 
     def get_elems(n):
         if isinstance(n, int): return n
-        elif n[0] in no_param_elems_primary_line: return n
-        elif n[0] in one_param_elems_primary_line: return [n[0], get_elems(n[1])]
-        elif n[0] in two_param_elems_primary_line: return [n[0], get_elems(n[1]), n[2]]
-        elif n[0] in dur_group_set:
+        elif n[0] in cfg.no_param_elems_primary_line: return n
+        elif n[0] in cfg.one_param_elems_primary_line: return [n[0], get_elems(n[1])]
+        elif n[0] in cfg.two_param_elems_primary_line: return [n[0], get_elems(n[1]), n[2]]
+        elif n[0] in cfg.dur_group_set:
             dur_group_tmp = [n[0]] + [get_elems(e) for e in n[1:]]
             return dur_group_tmp
         # elif n[0] == 'chord': # only the uppermost note matters for this particular case
@@ -53,24 +49,24 @@ def gen_primary_line_str(primary_line):
     """
     def get_walloc(n, in_g=False, in_d=False):
         if isinstance(n, int):
-            if in_g or in_d: return str(n), note_base_width
-            else: return str(n) + '   ', note_base_width + space_base_width * sym_factor['ccht']
-        elif n[0] == 'time': return '   ', note_base_width + space_base_width # leave empty space for the time signature pass
-        elif n[0] in types_bars: return sym[n[0]], sym_factor[n[0]]*space_base_width
-        elif n[0] in one_param_elems_primary_line_back:
+            if in_g or in_d: return str(n), cfg.note_base_width
+            else: return str(n) + '   ', cfg.note_base_width + cfg.space_base_width * cfg.sym_factor['ccht']
+        elif n[0] == 'time': return '   ', cfg.note_base_width + cfg.space_base_width # leave empty space for the time signature pass
+        elif n[0] in cfg.types_bars: return cfg.sym[n[0]], cfg.sym_factor[n[0]]*cfg.space_base_width
+        elif n[0] in cfg.one_param_elems_primary_line_back:
             n_tmp, n_alloc = get_walloc(n[1], in_g=in_g, in_d=in_d)
-            return n_tmp + sym[n[0]], n_alloc + sym_factor[n[0]]*space_base_width
-        elif n[0] in one_param_elems_primary_line_front:
+            return n_tmp + cfg.sym[n[0]], n_alloc + cfg.sym_factor[n[0]]*cfg.space_base_width
+        elif n[0] in cfg.one_param_elems_primary_line_front:
             n_tmp, n_alloc = get_walloc(n[1], in_g=in_g, in_d=in_d)
-            return sym[n[0]] + n_tmp, n_alloc + sym_factor[n[0]]*space_base_width
-        elif n[0] in duration:
+            return cfg.sym[n[0]] + n_tmp, n_alloc + cfg.sym_factor[n[0]]*cfg.space_base_width
+        elif n[0] in cfg.duration:
             notes_tmp = n[1:]
-            k = sym_factor[n[0]]
+            k = cfg.sym_factor[n[0]]
             n_tmp, n_alloc = '', 0
             for v in notes_tmp:
                 v_tmp, v_alloc = get_walloc(v, in_g=in_g, in_d=True)
                 n_tmp += v_tmp + ' '*k
-                n_alloc += v_alloc + space_base_width*k
+                n_alloc += v_alloc + cfg.space_base_width*k
             if not in_g:
                 return n_tmp + '  ', n_alloc + 30
             else:
@@ -80,11 +76,11 @@ def gen_primary_line_str(primary_line):
             n_tmp, n_alloc = zip(*n_walloc)
             n_tmp = [l for v in n_tmp for l in v]
             n_tmp = ''.join(n_tmp) + '  '
-            n_alloc = sum(n_alloc) + space_base_width*2
+            n_alloc = sum(n_alloc) + cfg.space_base_width*2
             return n_tmp, n_alloc
         else:
             print('else', n)
-            return str(n), note_base_width
+            return str(n), cfg.note_base_width
     
     def count_comp(lst, comp=' '):
         """
@@ -110,10 +106,10 @@ def gen_primary_line_str(primary_line):
         bar_notes = notes_tmp[-1]
         if num_space < 2:
             notes_tmp = no_bar_notes + ' '*(2-num_space) + bar_notes
-            walloc_tmp += space_base_width*(2-num_space)
+            walloc_tmp += cfg.space_base_width*(2-num_space)
         elif num_space > 2:
             notes_tmp = no_bar_notes[:(2-num_space)] + bar_notes
-            walloc_tmp -= space_base_width*(num_space-2)
+            walloc_tmp -= cfg.space_base_width*(num_space-2)
 
         if first_measure:
             notes += notes_tmp
@@ -143,7 +139,7 @@ def match_primary_direction(primary, direction):
         curr_prim, curr_dir = primary[i_prim], direction[i_dir]
         if curr_prim.isdigit():
             if isinstance(curr_dir, list) and int(curr_prim) == curr_dir[1]:
-                primary_tmp[i_prim] = sym[curr_dir[0]]
+                primary_tmp[i_prim] = cfg.sym[curr_dir[0]]
                 i_prim += 1
                 i_dir += 1
             elif int(curr_prim) == curr_dir:
