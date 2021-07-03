@@ -39,8 +39,8 @@ X: Percussion (or placeholder for rhythms without pitch)
 ```
 ### 2.2 Octaves
 ```
-\roct{1, 2}: Raised octave, in example note 1 is raised 2 octaves.
-\loct{1, 2}: Lowered octave, in example note 1 is lowered 2 octaves.
+\oct{1, 2}: Raised octave, in example note 1 is raised 2 octaves.
+\oct{1, -2}: Lowered octave, in example note 1 is lowered 2 octaves.
 ```
 ### 2.3 Accidentals
 ```
