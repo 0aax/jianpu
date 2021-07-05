@@ -1,6 +1,6 @@
-\time{2, 4} \group{\qvr{\dot{\down{\chord{\roct{2}, \roct{1}, 1}}}}, \sqvr{\up{1}}} \group{\qvr{\down{2}}, \sqvr{\down{5}, \up{6}}} \bar
+\time{2, 4} \group{\qvr{\dot{\down{\chord{\oct{2, 1}, \oct{1, 1}, 1}}}}, \sqvr{\up{1}}} \group{\qvr{\down{2}}, \sqvr{\down{5}, \up{6}}} \bar
 \down{3} \group{\qvr{\down{3}}, \sqvr{5, 6}} \bar
-\sqvr{\down{\roct{3}}, \up{\roct{5}}, \down{\roct{3}}, \up{\roct{2}}} \down{\roct{3}} \bar
+\sqvr{\down{\oct{3, 1}}, \up{\oct{5, 1}}, \down{\oct{3, 1}}, \up{\oct{2, 1}}} \down{\oct{3, 1}} \bar
 \group{\qvr{\dot{\down{1}}}, \sqvr{\up{1}}} \group{\qvr{\down{2}}, \sqvr{\down{5}, \up{6}}} \bar
 \down{3} \group{\qvr{\down{3}}, \sqvr{5, 6}} \bar
 \sqvr{\down{3}, \up{5}, \down{3}, \up{2}} \down{3} \bar
