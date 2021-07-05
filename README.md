@@ -66,7 +66,7 @@ X: Percussion (or placeholder for rhythms without pitch)
 ```
 All duration operators can handle notes of any form (i.e. ones that have been raised or lowered octaves).
 ```
-\qvr{\roct{4, 1}}
+\qvr{\oct{4, 1}}
 ```
 Additionally, the operators from `(2)` can take any number notes.
 ```
