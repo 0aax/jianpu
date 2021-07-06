@@ -143,14 +143,14 @@ def match_primary_target_group(primary, target_group, target_sym=(lambda x: None
                 i_prim += 1
                 i_dir += 1
             elif int(curr_prim) == curr_dir:
-                primary_tmp[i_prim] = ' '
+                primary_tmp[i_prim] = '  '
                 i_prim += 1
                 i_dir += 1
             else:
-                primary_tmp[i_prim] = ' '
+                primary_tmp[i_prim] = '  '
                 i_prim += 1
         else:
-            primary_tmp[i_prim] = ' '
+            primary_tmp[i_prim] = ' ' * cfg.sym_factor[cfg.sym_opp[curr_prim]]
             i_prim += 1
     primary_tmp[-1] = ' ' # end bar
     return ''.join(primary_tmp)

@@ -38,25 +38,27 @@ directions = {'down', 'up'}
 octaves = {'oct'}
 no_param_elems = types_bars
 
-sym_factor = {  'bar': 1,
-                'dbar': 1,
-                'lebar': 1,
-                'rebar': 1,
-                'lrep': 2,
-                'rrep': 2,
+sym_factor = {'bar': 2,
+              'dbar': 2,
+              'lebar': 2,
+              'rebar': 2,
+              'lrep': 2,
+              'rrep': 2,
 
-                'sqvr': 1,
-                'qvr': 2,
-                'ccht': 3,
-                'mm': 4,
+              'sqvr': 1,
+              'qvr': 2,
+              'ccht': 3,
+              'mm': 4,
 
-                'sbrve': 5,
-                'sharp': 1,
-                'flat': 1,
+              'sbrve': 5,
+              'sharp': 1,
+              'flat': 1,
 
-                'natural': 1,
-                'dot': 1, 
-                'ddot': 2}
+              'natural': 1,
+              'dot': 1, 
+              'ddot': 2,
+                
+              'space': 1}
 
 sym = {'bar': '|',
        'lebar': '[',
@@ -72,7 +74,11 @@ sym = {'bar': '|',
        'ddot': '..',
        
        'down': '\\',
-       'up': '/'}
+       'up': '/',
+       
+       'space': ' '}
+
+sym_opp = {v: k for k, v in sym.items()}
 
 oct_sym = {-1: '\'', # TODO: Change this to the actual symbol later
            1: '\'',

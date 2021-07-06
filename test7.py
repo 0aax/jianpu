@@ -11,25 +11,19 @@ paper_sizes = {'a4': (2480, 3508),
                'letter': (2550, 3300)}    
 paper_type = 'letter'
 
-parsed = parse('test_inputs/test_4.txt', is_lst=False)
+parsed = parse('test_inputs/test_5.txt', is_lst=False)
 comp = Composition(parsed=parsed)
 
 measured_w_bar = comp.gen_measured_notes(comp.notes, with_bar=True)
 measured_no_bar = comp.gen_measured_notes(comp.notes, with_bar=False)
-# print(measured, '\n')
+
 primary_line = get_primary_line(measured_w_bar)
-# print(primary_line, '\n')
 direction_line = get_target_group_line(measured_no_bar, target_group=directions, target_func=get_direction)
-# print(direction_line, '\n')
 octave_line = get_target_group_line(measured_no_bar, target_group=octaves, target_func=get_octave)
-# print(octave_line, '\n')
 
 notes_str, walloc = gen_primary_line_str(primary_line)
-print(notes_str, '\n')
 primary_direc = match_primary_target_group(notes_str, direction_line, target_sym=match_direction)
-print(primary_direc, '\n')
 primary_oct = match_primary_target_group(notes_str, octave_line, target_sym=match_octave)
-print(primary_oct, '\n')
 
 paper = Image.new('RGB', paper_sizes[paper_type], (255, 255, 255))
 paper_editable = ImageDraw.Draw(paper)
@@ -42,6 +36,16 @@ notes_small = ImageFont.truetype("assets/jianpu_small.otf", 55)
 
 time_up = ImageFont.truetype("assets/time_up.otf", 80)
 time_low = ImageFont.truetype("assets/time_low.otf", 80)
+
+print(primary_direc, 'end')
+print(primary_oct, 'end')
+print(notes_str, 'end')
+
+txt = ''
+
+# primary_direc = '   \\                                         \\ / \\ /   \\     \\   /   \\  \\ /     \\   \\            \\ / \\ /   \\'
+# primary_oct  = '   \'   1   2  5 6     3   3  5 6     \' \' \' \'   \'     1   1   2  5 6     3   3  5 6     3 5 3 2   3     3   3   3   3'
+# primary_line = '    2.  1   2  5 6  |  3   3  5 6  |  3 5 3 2   3  |  1.  1   2  5 6  |  3   3  5 6  |  3 5 3 2   3  |  3   3   3   3  |'
 
 x, y = 150, 150
 paper_editable.text((x, y), primary_direc, fill=(0, 0, 0), font=notes)
