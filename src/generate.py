@@ -24,6 +24,28 @@ def get_target_group_line(measured_notes, target_group={}, target_func=(lambda n
         tg_line += tg_measure
     return tg_line
 
+def get_dur_group_line(measured_notes):
+    """
+    Given an input that has already been grouped into measures, returns all notes. Notes that are part of a group or have a duration will have an additional indicator. Only the first note of a chord will appear as a placeholder.
+    """
+    
+    def get_dur_group(n):
+        if isinstance(n, int): return n
+        elif n[0] in cfg.dur_group_set:
+            dur_group_tmp = [n[0]] + [get_dur_group(e) for e in n[1:]]
+            return dur_group_tmp
+        # elif n[0] == 'chord': # only the uppermost note matters for this particular case
+        #     return get_dur_group(n[1])
+        else: return get_dur_group(n[1])
+
+    dur_group = []
+    for measure in measured_notes:
+        measure_dur_group = []
+        for n in measure:
+            if not (isinstance(n, list) and n[0] == 'time'): measure_dur_group += get_dur_group(n)
+        dur_group += measure_dur_group
+    return dur_group
+
 def get_primary_line(measured_notes):
     """
     Given measured notes, returns an array of notes and the corresponding operators that appear on the primary line.
@@ -122,7 +144,7 @@ def gen_primary_line_str(primary_line):
 
     return notes, walloc
 
-def match_primary_target_group(primary, target_group, target_sym=(lambda x: None), return_str=False):
+def match_primary_target_group(primary, target_group, target_sym=(lambda x: None), return_as_str=False):
     """
     Given the string form of the primary line and an array notes and their corresponding directions, returns a string of the target group.
     """
@@ -152,5 +174,5 @@ def match_primary_target_group(primary, target_group, target_sym=(lambda x: None
             primary_tmp[i_prim] = ''
             i_prim += 1
 
-    if return_str: return ''.join(primary_tmp)
+    if return_as_str: return ''.join(primary_tmp)
     else: return primary_tmp
