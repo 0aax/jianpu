@@ -73,13 +73,13 @@ sym = {'bar': '|',
        'dot': '.',
        'ddot': '..',
        
-       'down': '\\',
-       'up': '/',
+       'down': u'\u0302',
+       'up': u'\u0303',
        
        'space': ' '}
 
 sym_opp = {v: k for k, v in sym.items()}
 
-oct_sym = {-1: '\'', # TODO: Change this to the actual symbol later
-           1: '\'',
-           2: '"'}
+oct_sym = {-1: u'\u0300', # TODO: Change this to the actual symbol later
+           1: u'\u0300',
+           2: u'\u0301'}

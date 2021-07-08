@@ -1,5 +1,6 @@
 from PIL import Image, ImageDraw
 import src.config as cfg
+from src.utils import arr_from_string
 
 def get_target_group_line(measured_notes, target_group={}, target_func=(lambda n0: None)):
     """
@@ -121,36 +122,35 @@ def gen_primary_line_str(primary_line):
 
     return notes, walloc
 
-def match_primary_target_group(primary, target_group, target_sym=(lambda x: None)):
+def match_primary_target_group(primary, target_group, target_sym=(lambda x: None), return_str=False):
     """
     Given the string form of the primary line and an array notes and their corresponding directions, returns a string of the target group.
     """
-    def arr_from_string(string):
-        """
-        Returns an array from a string.
-        """
-        return [e for e in string]
-
-    primary_tmp = arr_from_string(primary)
+    primary_tmp = primary.copy()
 
     len_prim, len_dir = len(primary), len(target_group)
     i_prim, i_dir = 0, 0
-    while i_dir < len_dir:
-        curr_prim, curr_dir = primary[i_prim], target_group[i_dir]
-        if curr_prim.isdigit():
-            if isinstance(curr_dir, list) and int(curr_prim) == curr_dir[1]:
-                primary_tmp[i_prim] = target_sym(curr_dir)
-                i_prim += 1
-                i_dir += 1
-            elif int(curr_prim) == curr_dir:
-                primary_tmp[i_prim] = '  '
-                i_prim += 1
-                i_dir += 1
+    while i_prim < len_prim:
+        if i_dir < len_dir:
+            curr_prim, curr_dir = primary[i_prim], target_group[i_dir]
+            if curr_prim.isdigit():
+                if isinstance(curr_dir, list) and int(curr_prim) == curr_dir[1]:
+                    primary_tmp[i_prim] = target_sym(curr_dir)
+                    i_prim += 1
+                    i_dir += 1
+                elif int(curr_prim) == curr_dir:
+                    primary_tmp[i_prim] = ''
+                    i_prim += 1
+                    i_dir += 1
+                else:
+                    primary_tmp[i_prim] = ''
+                    i_prim += 1
             else:
-                primary_tmp[i_prim] = '  '
+                primary_tmp[i_prim] = ''
                 i_prim += 1
         else:
-            primary_tmp[i_prim] = ' ' * cfg.sym_factor[cfg.sym_opp[curr_prim]]
+            primary_tmp[i_prim] = ''
             i_prim += 1
-    primary_tmp[-1] = ' ' # end bar
-    return ''.join(primary_tmp)
+
+    if return_str: return ''.join(primary_tmp)
+    else: return primary_tmp
