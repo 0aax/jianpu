@@ -1,6 +1,6 @@
 from PIL import Image, ImageDraw
 import src.config as cfg
-from src.utils import arr_from_string
+import src.utils as utls
 
 def get_target_group_line(measured_notes, target_group={}, target_func=(lambda n0: None)):
     """
@@ -15,7 +15,6 @@ def get_target_group_line(measured_notes, target_group={}, target_func=(lambda n
             for e in n[1:]: dur_group_tmp += get_elems(e)
             return dur_group_tmp
         else: return get_elems(n[1])
-    
     tg_line = []
     for measure in measured_notes:
         tg_measure = []
@@ -31,18 +30,20 @@ def get_dur_group_line(measured_notes):
     
     def get_dur_group(n):
         if isinstance(n, int): return n
-        elif n[0] in cfg.dur_group_set:
-            dur_group_tmp = [n[0]] + [get_dur_group(e) for e in n[1:]]
-            return dur_group_tmp
-        # elif n[0] == 'chord': # only the uppermost note matters for this particular case
-        #     return get_dur_group(n[1])
+        elif n[0] == 'group':
+            group_tmp = []
+            for e in n[1:]: group_tmp += get_dur_group(e)
+            return group_tmp
+        elif n[0] in cfg.duration:
+            dur_tmp = [n[0]] + [get_dur_group(e) for e in n[1:]]
+            return dur_tmp
         else: return get_dur_group(n[1])
 
     dur_group = []
     for measure in measured_notes:
         measure_dur_group = []
         for n in measure:
-            if not (isinstance(n, list) and n[0] == 'time'): measure_dur_group += get_dur_group(n)
+            if not (isinstance(n, list) and n[0] == 'time'): measure_dur_group.append(get_dur_group(n))
         dur_group += measure_dur_group
     return dur_group
 
@@ -146,31 +147,85 @@ def gen_primary_line_str(primary_line):
 
 def match_primary_target_group(primary, target_group, target_sym=(lambda x: None), return_as_str=False):
     """
-    Given the string form of the primary line and an array notes and their corresponding directions, returns a string of the target group.
+    Given the string form of the primary line and an array notes and their corresponding target group, returns a string of the target group symbols in the correct placement.
     """
     primary_tmp = primary.copy()
 
-    len_prim, len_dir = len(primary), len(target_group)
-    i_prim, i_dir = 0, 0
+    len_prim, len_tg = len(primary), len(target_group)
+    i_prim, i_tg = 0, 0
     while i_prim < len_prim:
-        if i_dir < len_dir:
-            curr_prim, curr_dir = primary[i_prim], target_group[i_dir]
+        updated = False
+        if i_tg < len_tg:
+            curr_prim, curr_tg = primary[i_prim], target_group[i_tg]
             if curr_prim.isdigit():
-                if isinstance(curr_dir, list) and int(curr_prim) == curr_dir[1]:
-                    primary_tmp[i_prim] = target_sym(curr_dir)
+                if isinstance(curr_tg, list) and int(curr_prim) == curr_tg[1]:
+                    primary_tmp[i_prim] = target_sym(curr_tg)
                     i_prim += 1
-                    i_dir += 1
-                elif int(curr_prim) == curr_dir:
+                    i_tg += 1
+                    updated = True
+                elif int(curr_prim) == curr_tg:
                     primary_tmp[i_prim] = ''
                     i_prim += 1
-                    i_dir += 1
-                else:
-                    primary_tmp[i_prim] = ''
-                    i_prim += 1
+                    i_tg += 1
+                    updated = True
+        
+        if not updated:
+            primary_tmp[i_prim] = ''
+            i_prim += 1
+
+    if return_as_str: return ''.join(primary_tmp)
+    else: return primary_tmp
+
+def match_primary_duration(primary, dur_group, return_as_str=False):
+    """
+    Given the string form of the primary line and an array notes and their corresponding durations, returns a string of the duration symbols in their proper places.
+    """
+    primary_tmp = primary.copy()
+
+    len_prim, len_dir = len(primary), len(dur_group)
+    i_prim, i_dur = 0, 0
+
+    while i_prim < len_prim:
+        updated = False
+        if i_dur < len_dir:
+            curr_dur = dur_group[i_dur]
+            curr_prim = primary[i_prim]
+            if isinstance(curr_dur, list) and curr_prim != ' ':
+                i_match = 0
+                len_match = len(curr_dur)
+
+                prev_sym = ''
+                while i_match < len_match:
+                    curr_prim = primary[i_prim]
+
+                    if not curr_prim.isdigit():
+                        primary_tmp[i_prim] = prev_sym
+                        i_prim += 1
+                        continue
+
+                    if curr_dur[i_match] in cfg.duration:
+                        dur_sym_dict = cfg.dur_sym[curr_dur[i_match]]
+                        i_match += 1
+
+                    if curr_prim.isdigit() and int(curr_prim) == curr_dur[i_match]:
+                        primary_tmp[i_prim] = dur_sym_dict[2]
+                        i_prim += 1
+                        i_match += 1
+                        prev_sym = dur_sym_dict[2]
+                    else:
+                        primary_tmp[i_prim] = dur_sym_dict[1]
+                        i_prim += 1
+                        prev_sym = dur_sym_dict[1]
+                updated = True
+                i_dur += 1
             else:
-                primary_tmp[i_prim] = ''
-                i_prim += 1
-        else:
+                if curr_prim.isdigit() and int(curr_prim) == curr_dur:
+                    primary_tmp[i_prim] = ''
+                    i_prim += 1
+                    i_dur += 1
+                    updated = True
+                
+        if not updated:
             primary_tmp[i_prim] = ''
             i_prim += 1
 
