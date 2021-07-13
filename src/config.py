@@ -83,3 +83,8 @@ sym_opp = {v: k for k, v in sym.items()}
 oct_sym = {-1: u'\u0300', # TODO: Change this to the actual symbol later
            1: u'\u0300',
            2: u'\u0301'}
+
+dur_sym = {'sqvr': {1: u'\u0307', 2: u'\u0305'},
+           'qvr':  {1: u'\u0306', 2: u'\u0304'},
+           'ccht': {1: '', 2: ''},
+           'mm':   {1: '', 2: ''}}

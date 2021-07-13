@@ -16,3 +16,13 @@ def element_wise_sum(*args):
     Given any number of arrays with only strings as elements, returns the element-wise sum of the strings.
     """
     return list(map(''.join, zip(*args)))
+
+def combine_arrays(arr):
+    """
+    Given an array of arrays, returns a single array that contains all elements.
+    """
+    returns = []
+    for e in arr:
+        if isinstance(e, list): returns += e
+        else: returns.append(e)
+    return returns
