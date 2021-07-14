@@ -1,6 +1,6 @@
 from src.composition import Composition
 from src.parser import parse
-from src.generate import get_dur_group_line, get_target_group_line, get_primary_line, gen_primary_line_str, match_primary_duration, match_primary_target_group
+from src.lines import get_dur_group_line, get_target_group_line, get_primary_line, gen_primary_line_str, match_primary_duration, match_primary_target_group
 from src.config import *
 from src.utils import element_wise_sum, arr_from_string
 from src.misc_funcs import get_direction, get_octave, match_direction, match_octave
@@ -53,18 +53,20 @@ time_low = ImageFont.truetype("assets/time_low.otf", 80)
 # print(primary_oct, 'end')
 # print(notes_str, 'end')
 
-txt = '3' + u'\u0300' + u'\u0302' + u'\u0304'
-txt = '3 ' + u'\u0306' + ' ' + u'\u0306' + '3' + u'\u0304'
+# txt = '3' + u'\u0300' + u'\u0302' + u'\u0304'
+# txt = '3 ' + u'\u0306' + ' ' + u'\u0306' + '3' + u'\u0304'
+# txt = '3' + u'\u0311'
 
-# primary_direc = '   \\                                         \\ / \\ /   \\     \\   /   \\  \\ /     \\   \\            \\ / \\ /   \\'
+primary_direc = '    \\                                           \\ / \\ /   \\      \\   /   \\  / \\                                                                     '
+# primary_direc = '    \\                                         \\ / \\ /   \\     \\   /   \\  \\ /     \\   \\            \\ / \\ /   \\'
 # primary_oct  = '   \'   1   2  5 6     3   3  5 6     \' \' \' \'   \'     1   1   2  5 6     3   3  5 6     3 5 3 2   3     3   3   3   3'
-# primary_line = '    2.  1   2  5 6  |  3   3  5 6  |  3 5 3 2   3  |  1.  1   2  5 6  |  3   3  5 6  |  3 5 3 2   3  |  3   3   3   3  |'
+primary_line = '    2.  1   2  5 6  |  3   3  5 6  |  3 5 3 2   3  |  1.  1   2  5 6  |  3   3  5 6  |  3 5 3 2   3  |  3   3   3   3  |'
 
 x, y = 70, 150
 # paper_editable.text((x, y), txt, fill=(0, 0, 0), font=notes2)
-paper_editable.text((x, y), primary_final, fill=(0, 0, 0), font=notes2)
-# paper_editable.text((x, y), primary_direc, fill=(0, 0, 0), font=notes2)
-# paper_editable.text((x, y), primary_oct, fill=(0, 0, 0), font=notes2)
+# paper_editable.text((x, y), primary_final, fill=(0, 0, 0), font=notes2)
+paper_editable.text((x, y), primary_direc, fill=(0, 0, 0), font=notes2)
+paper_editable.text((x, y), primary_line, fill=(0, 0, 0), font=notes2)
 # paper_editable.text((x, y), notes_str, fill=(0, 0, 0), font=notes)
 # paper_editable.text((x, y), '   _____==   ____======          ____======      ===========          ____==   ____======           ____======     ===========          ', fill=(0, 0, 0), font=notes2)
 
