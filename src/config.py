@@ -36,7 +36,13 @@ one_param_elems_primary_line = one_param_elems_primary_line_front | one_param_el
 
 directions = {'down', 'up'}
 octaves = {'oct'}
+tie_slur = {'stie', 'etie', 'sslur', 'eslur'}
+dynamics = {'p', 'mp', 'f', 'mf'}
 no_param_elems = types_bars
+
+one_param = directions | tie_slur | dynamics | {'ddot', 'dot', 'trem', 'grace'}
+two_param = {'time', 'fing'} | octaves
+n_param = duration | {'group'}
 
 sym_factor = {'bar': 2,
               'dbar': 2,
@@ -80,9 +86,11 @@ sym = {'bar': '|',
 
 sym_opp = {v: k for k, v in sym.items()}
 
-oct_sym = {-1: u'\u0300', # TODO: Change this to the actual symbol later
-           1: u'\u0300',
-           2: u'\u0301'}
+loct_info = {u'\u0305', u'\u0304'}
+oct_sym = {-2: {0: u'\u030D', 1: u'\u0309', 2: u'\u030B'},
+           -1: {0: u'\u030C', 1: u'\u0308', 2: u'\u030A'},
+            1: u'\u0300',
+            2: u'\u0301'}
 
 dur_sym = {'sqvr': {1: u'\u0307', 2: u'\u0305'},
            'qvr':  {1: u'\u0306', 2: u'\u0304'},
