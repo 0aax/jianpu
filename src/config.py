@@ -38,7 +38,10 @@ directions = {'down', 'up'}
 octaves = {'oct'}
 tie_slur = {'stie', 'etie', 'sslur', 'eslur'}
 dynamics = {'p', 'mp', 'f', 'mf'}
+dots = {'dot', 'ddot'}
 no_param_elems = types_bars
+
+ignore_syms = dots
 
 one_param = directions | tie_slur | dynamics | {'ddot', 'dot', 'trem', 'grace'}
 two_param = {'time', 'fing'} | octaves
@@ -89,8 +92,8 @@ sym_opp = {v: k for k, v in sym.items()}
 loct_info = {u'\u0305', u'\u0304'}
 oct_sym = {-2: {0: u'\u030D', 1: u'\u0309', 2: u'\u030B'},
            -1: {0: u'\u030C', 1: u'\u0308', 2: u'\u030A'},
-            1: u'\u0300',
-            2: u'\u0301'}
+            1: {0: u'\u0300', 1: u'\u0300', 2: u'\u0300'},
+            2: {0: u'\u0301', 1: u'\u0301', 2: u'\u0301'}}
 
 dur_sym = {'sqvr': {1: u'\u0307', 2: u'\u0305'},
            'qvr':  {1: u'\u0306', 2: u'\u0304'},

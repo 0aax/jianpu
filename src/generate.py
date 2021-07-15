@@ -1,9 +1,7 @@
 from src.composition import Composition
 from src.parser import parse
-from src.lines import get_dur_group_line, get_target_group_line, get_primary_line, gen_primary_line_str, match_primary_duration, match_primary_target_group
+from src.lines import get_primary, gen_primary_str, rearrange, add_sym, get_dg, match_pd, chords_arranged, add_sym_sub
 from src.utils import element_wise_sum, arr_from_string
-from src.misc_funcs import get_direction, get_octave, get_ts
-from src.misc_funcs import match_direction, match_octave
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -17,20 +15,27 @@ def generate_str(file, paper_type='letter'):
     measured_w_bar = comp.gen_measured_notes(comp.notes, with_bar=True)
     measured_no_bar = comp.gen_measured_notes(comp.notes, with_bar=False)
 
-    primary_line = get_primary_line(measured_w_bar)
-    direction_line = get_target_group_line(measured_no_bar, target_group=cfg.directions, target_func=get_direction)
-    octave_line = get_target_group_line(measured_no_bar, target_group=cfg.octaves, target_func=get_octave)
-    duration_line = get_dur_group_line(measured_no_bar)
+    pl = get_primary(measured_w_bar)
+    notes_str, walloc = gen_primary_str(pl)
+    rr = rearrange(measured_no_bar)
 
-    notes_str, walloc = gen_primary_line_str(primary_line)
     notes_lst = arr_from_string(notes_str)
-    primary_direc = match_primary_target_group(notes_lst, direction_line, target_sym=match_direction)
-    primary_dur = match_primary_duration(notes_lst, duration_line)
-    primary_oct = match_primary_target_group(notes_lst, octave_line, helper=primary_dur, target_sym=match_octave)
+    dg = get_dg(measured_no_bar)
+    pd = match_pd(notes_lst, dg)
 
-    primary_final = ''.join(element_wise_sum(notes_lst, primary_oct, primary_direc, primary_dur))
+    tmp = add_sym(notes_str, rr, helper=pd, return_as_str=False)
+    final = ''.join(element_wise_sum(tmp, pd))
 
-    return primary_final
+    ca = chords_arranged(measured_no_bar)
+    len_ca = len(ca)
+    sublns = []
+    sb_prim = ca[0]
+    for i in range(1, len_ca):
+        sb_i = rearrange([ca[i]])
+        is_ending = i == len_ca - 1
+        sublns.append(''.join(add_sym_sub(notes_str, sb_prim, sb_i, helper=pd, return_as_str=False, ending_subln=is_ending)))
+
+    return final, sublns
 
 def write_to_paper(x, y, in_file, out_file, paper_type='letter'):
     paper = Image.new('RGB', cfg.paper_sizes[paper_type], (255, 255, 255))
@@ -40,13 +45,19 @@ def write_to_paper(x, y, in_file, out_file, paper_type='letter'):
     NotoSerif_li = ImageFont.truetype("assets/NotoSerifCJKsc-Light.otf", 50)
 
     notes = ImageFont.truetype("assets/jianpu2.otf", 55)
+    notes_small = ImageFont.truetype("assets/jianpu2_small.otf", 55)
 
     time_up = ImageFont.truetype("assets/time_up.otf", 80)
     time_low = ImageFont.truetype("assets/time_low.otf", 80)
 
-    primary_final = generate_str(in_file, paper_type=paper_type)
+    final, sublns = generate_str(in_file, paper_type=paper_type)
 
-    paper_editable.text((x, y), primary_final, fill=(0, 0, 0), font=notes, features=['-kern'])
+    paper_editable.text((x, y), final, fill=(0, 0, 0), font=notes, features=['-kern'])
+
+    for i, sb in enumerate(sublns):
+        if i == 0: space = 70
+        else: space = 60*(i+1)
+        paper_editable.text((x, y+space), sb, fill=(0, 0, 0), font=notes_small, features=['-kern'])
 
     cwd = os.getcwd()
     paper.save(os.path.join(cwd, out_file), 'PNG')

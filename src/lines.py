@@ -1,11 +1,10 @@
-from PIL import Image, ImageDraw
 import src.config as cfg
 import src.utils as utls
 
 def rearrange(measured_notes):
 
     def rr_note(n, ops=tuple()):
-        if isinstance(n, int):
+        if isinstance(n, int) or n is None:
             if len(ops) == 0: return [n]
             else: return [[list(ops), n]]
         elif n[0] in cfg.one_param: return rr_note(n[1], ops + (n[0],))
@@ -25,73 +24,123 @@ def rearrange(measured_notes):
         rr_tmp += rr_measure
     return rr_tmp
 
+def add_sym(primary, notes_syms, helper=None, return_as_str=True):
+    """
+    Given the string form of the primary line and an array of notes and the symbols that should be applied to them, returns a string of the notes and the symbols in the correct placement.
+    """
+    if isinstance(primary, str):
+        primary_tmp = utls.arr_from_string(primary).copy()
+    else: primary_tmp = primary.copy()
 
-def get_target_group_line(measured_notes, target_group={}, target_func=(lambda n0: None)):
-    """
-    Given measured notes, returns an array of notes and the corresponding target group operators.
-    """
-    def get_elems(n):
-        if isinstance(n, int): return [n]
-        elif n[0] in cfg.no_param_elems: return n
-        elif n[0] in target_group: return target_func(n)
-        elif n[0] in cfg.dur_group_set:
-            dur_group_tmp = []
-            for e in n[1:]: dur_group_tmp += get_elems(e)
-            return dur_group_tmp
-        else: return get_elems(n[1])
-    tg_line = []
-    for measure in measured_notes:
-        tg_measure = []
-        for n in measure:
-            if not (isinstance(n, list) and n[0] == 'time'): tg_measure += get_elems(n)
-        tg_line += tg_measure
-    return tg_line
+    len_prim, len_ns = len(primary), len(notes_syms)
+    i_prim, i_tg = 0, 0
+    while i_prim < len_prim:
+        updated = False
+        if i_tg < len_ns:
+            curr_prim, curr_tg = primary[i_prim], notes_syms[i_tg]
+            if helper is not None:
+                if cfg.dur_sym['sqvr'][2] in helper[i_prim]: curr_helper = 2
+                elif cfg.dur_sym['qvr'][2] in helper[i_prim]: curr_helper = 1
+                else: curr_helper = 0
+            else: curr_helper = 0
+            if curr_prim.isdigit():
+                if isinstance(curr_tg, list) and int(curr_prim) == curr_tg[1]:
+                    primary_tmp[i_prim] = utls.sym_to_add(curr_helper, curr_tg)
+                    i_prim += 1
+                    i_tg += 1
+                    updated = True
+                elif int(curr_prim) == curr_tg:
+                    i_prim += 1
+                    i_tg += 1
+                    updated = True
+        
+        if not updated:
+            i_prim += 1
 
-def get_dur_group_line(measured_notes):
-    """
-    Given an input that has already been grouped into measures, returns notes such that notes of a group or have a duration will have an additional indicator.
-    """
-    
-    def get_dur_group(n):
-        if isinstance(n, int): return n
-        elif n[0] == 'group':
-            group_tmp = []
-            for e in n[1:]: group_tmp += get_dur_group(e)
-            return group_tmp
-        elif n[0] in cfg.duration:
-            dur_tmp = [n[0]] + [get_dur_group(e) for e in n[1:]]
-            return dur_tmp
-        else: return get_dur_group(n[1])
+    if return_as_str: return ''.join(primary_tmp)
+    else: return primary_tmp
 
-    dur_group = []
-    for measure in measured_notes:
-        measure_dur_group = []
-        for n in measure:
-            if not (isinstance(n, list) and n[0] == 'time'): measure_dur_group.append(get_dur_group(n))
-        dur_group += measure_dur_group
-    return dur_group
+def add_sym_sub(primary, subln_prim, subln_sec, helper=None, return_as_str=True, ending_subln=False):
+    """
+    Given the string form of the primary line and an array of notes and the symbols that should be applied to them, returns a string of the notes and the symbols in the correct placement.
+    """
+    if isinstance(primary, str):
+        primary_tmp = utls.arr_from_string(primary).copy()
+    else: primary_tmp = primary.copy()
 
-def get_chord_line(measured_notes):
+    len_prim, len_ns = len(primary), len(subln_prim)
+    i_prim, i_tg = 0, 0
+    while i_prim < len_prim:
+        updated = False
+        if i_tg < len_ns:
+            curr_prim, curr_tg = primary[i_prim], subln_prim[i_tg]
+            dur_sym = ''
+            if helper is not None and ending_subln:
+                if cfg.dur_sym['sqvr'][2] in helper[i_prim]:
+                    dur_sym = cfg.dur_sym['sqvr'][2]
+                    curr_helper = 2
+                elif cfg.dur_sym['qvr'][2] in helper[i_prim]:
+                    dur_sym = cfg.dur_sym['qvr'][2]
+                    curr_helper = 1
+                else: curr_helper = 0
+            else: curr_helper = 0
+
+            if curr_prim.isdigit() and int(curr_prim) == curr_tg:
+                curr_subln = subln_sec[i_tg]
+                if curr_subln is None:
+                    primary_tmp[i_prim] = '  '
+                else:
+                    primary_tmp[i_prim] = utls.sym_to_add(curr_helper, subln_sec[i_tg]) + dur_sym
+                i_prim += 1
+                i_tg += 1
+                updated = True
+        
+        if not updated:
+            primary_tmp[i_prim] = ' '*cfg.sym_factor[cfg.sym_opp[primary[i_prim]]]
+            i_prim += 1
+
+    if return_as_str: return ''.join(primary_tmp)
+    else: return primary_tmp
+
+def chords_arranged(measured_notes):
     """
-    Given an input that has already been grouped into measures, returns notes such that notes of a chord are grouped.
+    Given measured notes, returns a 2D array where each subarray is one particular line of the chord. Notes that are not chords have None as a placeholder.
     """
-    
+
     def get_chord(n):
-        if isinstance(n, int): return n
-        elif n[0] == 'chord':
-            chord_tmp = [get_chord(e) for e in n[1:]]
-            return chord_tmp
+        if isinstance(n, int): return [n]
+        elif n[0] == 'chord': return [n[1:]]
+        elif n[0] in cfg.n_param:
+            ch_tmp = []
+            for e in n[1:]: ch_tmp += get_chord(e)
+            return ch_tmp
         else: return get_chord(n[1])
+    
+    def sublines(ch):
+        len_line = len(ch)
+        num_lines = max([len(c) if isinstance(c, list) else 1 for c in ch])
+        ds = [[0]*len_line for _ in range(num_lines)]
 
+        for i, c in enumerate(ch):
+            if isinstance(c, int): pop_tmp = [c] + [None]*(num_lines-1)
+            else: pop_tmp = c + [None]*(num_lines - len(c))
+            for j, pt in enumerate(pop_tmp): ds[j][i] = pt
+        
+        return ds
+    
     chords = []
     for measure in measured_notes:
-        measure_chords = []
+        ch_measure = []
         for n in measure:
-            if not (isinstance(n, list) and n[0] == 'time'): measure_chords.append(get_chord(n))
-        chords += measure_chords
-    return chords
+            if not (isinstance(n, list) and n[0] == 'time'): ch_measure += get_chord(n)
+        chords += ch_measure
+    
+    sl = sublines(chords)
+    sl[0] = [n if isinstance(n, int) else n[1] for n in sl[0]]
 
-def get_primary_line(measured_notes):
+    return sl
+
+def get_primary(measured_notes):
     """
     Given measured notes, returns an array of notes and the corresponding operators that appear on the primary line.
     """
@@ -111,10 +160,11 @@ def get_primary_line(measured_notes):
     primary_line = [[get_elems(n) for n in measure] for measure in measured_notes]
     return primary_line
 
-def gen_primary_line_str(primary_line):
+def gen_primary_str(primary):
     """
     Returns a character-by-character array of the primary line, as well as a corresponding array containing the exact width allocation.
     """
+
     def get_walloc(n, in_g=False, in_d=False):
         if isinstance(n, int):
             if in_g or in_d: return str(n), cfg.note_base_width
@@ -163,7 +213,7 @@ def gen_primary_line_str(primary_line):
     walloc = 0
     notes = ''
     first_measure = True
-    for measure in primary_line:
+    for measure in primary:
         measure_alloc = [get_walloc(n) for n in measure]
         notes_tmp, walloc_tmp = zip(*measure_alloc)
         notes_tmp = ''.join(notes_tmp)
@@ -189,44 +239,31 @@ def gen_primary_line_str(primary_line):
 
     return notes, walloc
 
-def match_primary_target_group(primary, target_group, helper=None, target_sym=(lambda x: None), return_as_str=False):
+def get_dg(measured_notes):
     """
-    Given the string form of the primary line and an array notes and their corresponding target group, returns a string of the target group symbols in the correct placement.
+    Given an input that has already been grouped into measures, returns notes such that notes of a group or have a duration will have an additional indicator.
     """
-    primary_tmp = primary.copy()
+    
+    def get_dur_group(n):
+        if isinstance(n, int): return n
+        elif n[0] == 'group':
+            group_tmp = []
+            for e in n[1:]: group_tmp += get_dur_group(e)
+            return group_tmp
+        elif n[0] in cfg.duration:
+            dur_tmp = [n[0]] + [get_dur_group(e) for e in n[1:]]
+            return dur_tmp
+        else: return get_dur_group(n[1])
 
-    len_prim, len_tg = len(primary), len(target_group)
-    i_prim, i_tg = 0, 0
-    while i_prim < len_prim:
-        updated = False
-        if i_tg < len_tg:
-            curr_prim, curr_tg = primary[i_prim], target_group[i_tg]
-            if helper is not None:
-                if cfg.dur_sym['sqvr'][2] in helper[i_prim]: curr_helper = 2
-                elif cfg.dur_sym['qvr'][2] in helper[i_prim]:
-                    curr_helper = 1
-                else: curr_helper = 0
-            else: curr_helper = 0
-            if curr_prim.isdigit():
-                if isinstance(curr_tg, list) and int(curr_prim) == curr_tg[1]:
-                    primary_tmp[i_prim] = target_sym(curr_tg, curr_helper)
-                    i_prim += 1
-                    i_tg += 1
-                    updated = True
-                elif int(curr_prim) == curr_tg:
-                    primary_tmp[i_prim] = ''
-                    i_prim += 1
-                    i_tg += 1
-                    updated = True
-        
-        if not updated:
-            primary_tmp[i_prim] = ''
-            i_prim += 1
+    dur_group = []
+    for measure in measured_notes:
+        measure_dur_group = []
+        for n in measure:
+            if not (isinstance(n, list) and n[0] == 'time'): measure_dur_group.append(get_dur_group(n))
+        dur_group += measure_dur_group
+    return dur_group
 
-    if return_as_str: return ''.join(primary_tmp)
-    else: return primary_tmp
-
-def match_primary_duration(primary, dur_group, return_as_str=False):
+def match_pd(primary, dur_group, return_as_str=False):
     """
     Given the string form of the primary line and an array notes and their corresponding durations, returns a string of the duration symbols in their proper places.
     """
