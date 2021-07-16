@@ -1,7 +1,7 @@
 import src.config as cfg
 import src.utils as utls
 
-def rearrange(measured_notes):
+def rearrange(measured_notes, ignore_time=True):
 
     def rr_note(n, ops=tuple()):
         if isinstance(n, int) or n is None:
@@ -10,6 +10,7 @@ def rearrange(measured_notes):
         elif n[0] in cfg.one_param: return rr_note(n[1], ops + (n[0],))
         elif n[0] in cfg.two_param: return rr_note(n[1], ops + ((n[0], n[2]),))
         elif n[0] == 'chord': return rr_note(n[1], ops)
+        elif n[0] == 'time': return rr_note(n[1], ops + ((n[0], n[2]),))
         elif n[0] in cfg.n_param:
             rr_tmp = []
             for e in n[1:]: rr_tmp += rr_note(e, ops)
@@ -20,7 +21,8 @@ def rearrange(measured_notes):
     for measure in measured_notes:
         rr_measure = []
         for n in measure:
-            if not (isinstance(n, list) and n[0] == 'time'): rr_measure += rr_note(n)
+            if ignore_time and isinstance(n, list) and n[0] == 'time': continue
+            rr_measure += rr_note(n)
         rr_tmp += rr_measure
     return rr_tmp
 
@@ -53,7 +55,7 @@ def add_sym(primary, notes_syms, helper=None, return_as_str=True):
                     i_prim += 1
                     i_tg += 1
                     updated = True
-        
+
         if not updated:
             i_prim += 1
 
@@ -96,7 +98,8 @@ def add_sym_sub(primary, subln_prim, subln_sec, helper=None, return_as_str=True,
                 updated = True
         
         if not updated:
-            primary_tmp[i_prim] = ' '*cfg.sym_factor[cfg.sym_opp[primary[i_prim]]]
+            p = primary[i_prim]
+            primary_tmp[i_prim] = ' '*cfg.sym_factor[cfg.sym_opp[p]]
             i_prim += 1
 
     if return_as_str: return ''.join(primary_tmp)
@@ -147,9 +150,9 @@ def get_primary(measured_notes):
 
     def get_elems(n):
         if isinstance(n, int): return n
-        elif n[0] in cfg.no_param_elems_primary_line: return n
-        elif n[0] in cfg.one_param_elems_primary_line: return [n[0], get_elems(n[1])]
-        elif n[0] in cfg.two_param_elems_primary_line: return [n[0], get_elems(n[1]), n[2]]
+        elif n[0] in cfg.no_param_elems_prim: return n
+        elif n[0] in cfg.one_param_elems_prim: return [n[0], get_elems(n[1])]
+        elif n[0] in cfg.two_param_elems_prim: return [n[0], get_elems(n[1]), n[2]]
         elif n[0] in cfg.dur_group_set:
             dur_group_tmp = [n[0]] + [get_elems(e) for e in n[1:]]
             return dur_group_tmp
@@ -157,8 +160,8 @@ def get_primary(measured_notes):
         #     return get_elems(n[1])
         else: return get_elems(n[1])
     
-    primary_line = [[get_elems(n) for n in measure] for measure in measured_notes]
-    return primary_line
+    prim = [[get_elems(n) for n in measure] for measure in measured_notes]
+    return prim
 
 def gen_primary_str(primary):
     """
@@ -169,12 +172,12 @@ def gen_primary_str(primary):
         if isinstance(n, int):
             if in_g or in_d: return str(n), cfg.note_base_width
             else: return str(n) + '   ', cfg.note_base_width + cfg.space_base_width * cfg.sym_factor['ccht']
-        elif n[0] == 'time': return '   ', cfg.note_base_width + cfg.space_base_width # leave empty space for the time signature pass
+        elif n[0] == 'time': return ' ' + cfg.time_up[n[1]] + cfg.time_dn[n[2]] + '  ', cfg.note_base_width + cfg.space_base_width*3
         elif n[0] in cfg.types_bars: return cfg.sym[n[0]], cfg.sym_factor[n[0]]*cfg.space_base_width
-        elif n[0] in cfg.one_param_elems_primary_line_back:
+        elif n[0] in cfg.one_param_elems_prim_back:
             n_tmp, n_alloc = get_walloc(n[1], in_g=in_g, in_d=in_d)
             return n_tmp + cfg.sym[n[0]], n_alloc + cfg.sym_factor[n[0]]*cfg.space_base_width
-        elif n[0] in cfg.one_param_elems_primary_line_front:
+        elif n[0] in cfg.one_param_elems_prim_front:
             n_tmp, n_alloc = get_walloc(n[1], in_g=in_g, in_d=in_d)
             return cfg.sym[n[0]] + n_tmp, n_alloc + cfg.sym_factor[n[0]]*cfg.space_base_width
         elif n[0] in cfg.duration:
@@ -239,7 +242,7 @@ def gen_primary_str(primary):
 
     return notes, walloc
 
-def get_dg(measured_notes):
+def get_dur_group(measured_notes):
     """
     Given an input that has already been grouped into measures, returns notes such that notes of a group or have a duration will have an additional indicator.
     """
@@ -263,7 +266,7 @@ def get_dg(measured_notes):
         dur_group += measure_dur_group
     return dur_group
 
-def match_pd(primary, dur_group, return_as_str=False):
+def match_prim_dur(primary, dur_group, return_as_str=False):
     """
     Given the string form of the primary line and an array notes and their corresponding durations, returns a string of the duration symbols in their proper places.
     """

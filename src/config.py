@@ -27,12 +27,12 @@ dur_group_set = {'group', 'grace'} | duration
 
 l_marg, r_marg = 150, 150
 
-no_param_elems_primary_line = {'time'} | types_bars
-one_param_elems_primary_line_front = {'grace', 'sharp', 'flat', 'natural'}
-one_param_elems_primary_line_back = {'ddot', 'dot'}
-two_param_elems_primary_line = {'fing'}
+no_param_elems_prim = types_bars
+one_param_elems_prim_front = {'grace', 'sharp', 'flat', 'natural'}
+one_param_elems_prim_back = {'ddot', 'dot'}
+two_param_elems_prim = {'fing', 'time'}
 
-one_param_elems_primary_line = one_param_elems_primary_line_front | one_param_elems_primary_line_back
+one_param_elems_prim = one_param_elems_prim_front | one_param_elems_prim_back
 
 directions = {'down', 'up'}
 octaves = {'oct'}
@@ -67,7 +67,9 @@ sym_factor = {'bar': 2,
               'dot': 1, 
               'ddot': 2,
                 
-              'space': 1}
+              'space': 1,
+              'time': 1,
+              'time2': 0}
 
 sym = {'bar': '|',
        'lebar': '[',
@@ -85,7 +87,10 @@ sym = {'bar': '|',
        'down': u'\u0302',
        'up': u'\u0303',
        
-       'space': ' '}
+       'space': ' ',
+       
+       'time': u'\u031A',
+       'time2': u'\u0312'}
 
 sym_opp = {v: k for k, v in sym.items()}
 
@@ -99,3 +104,25 @@ dur_sym = {'sqvr': {1: u'\u0307', 2: u'\u0305'},
            'qvr':  {1: u'\u0306', 2: u'\u0304'},
            'ccht': {1: '', 2: ''},
            'mm':   {1: '', 2: ''}}
+
+time_dn = {0: u'\u030E',
+           1: u'\u030F',
+           2: u'\u0310',
+           3: u'\u0311',
+           4: u'\u0312',
+           5: u'\u0313',
+           6: u'\u0314',
+           7: u'\u0315',
+           8: u'\u0316',
+           9: u'\u0317'}
+
+time_up = {0: u'\u0318',
+           1: u'\u0319',
+           2: u'\u031A',
+           3: u'\u031B',
+           4: u'\u031C',
+           5: u'\u031D',
+           6: u'\u031E',
+           7: u'\u031F',
+           8: u'\u0320',
+           9: u'\u0321'}

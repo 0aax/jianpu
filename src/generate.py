@@ -1,6 +1,6 @@
 from src.composition import Composition
 from src.parser import parse
-from src.lines import get_primary, gen_primary_str, rearrange, add_sym, get_dg, match_pd, chords_arranged, add_sym_sub
+from src.lines import get_primary, gen_primary_str, rearrange, add_sym, get_dur_group, match_prim_dur, chords_arranged, add_sym_sub
 from src.utils import element_wise_sum, arr_from_string
 
 from PIL import Image, ImageDraw, ImageFont
@@ -20,8 +20,8 @@ def generate_str(file, paper_type='letter'):
     rr = rearrange(measured_no_bar)
 
     notes_lst = arr_from_string(notes_str)
-    dg = get_dg(measured_no_bar)
-    pd = match_pd(notes_lst, dg)
+    dg = get_dur_group(measured_no_bar)
+    pd = match_prim_dur(notes_lst, dg)
 
     tmp = add_sym(notes_str, rr, helper=pd, return_as_str=False)
     final = ''.join(element_wise_sum(tmp, pd))
@@ -31,7 +31,7 @@ def generate_str(file, paper_type='letter'):
     sublns = []
     sb_prim = ca[0]
     for i in range(1, len_ca):
-        sb_i = rearrange([ca[i]])
+        sb_i = rearrange([ca[i]], ignore_time=True)
         is_ending = i == len_ca - 1
         sublns.append(''.join(add_sym_sub(notes_str, sb_prim, sb_i, helper=pd, return_as_str=False, ending_subln=is_ending)))
 
@@ -46,9 +46,6 @@ def write_to_paper(x, y, in_file, out_file, paper_type='letter'):
 
     notes = ImageFont.truetype("assets/jianpu2.otf", 55)
     notes_small = ImageFont.truetype("assets/jianpu2_small.otf", 55)
-
-    time_up = ImageFont.truetype("assets/time_up.otf", 80)
-    time_low = ImageFont.truetype("assets/time_low.otf", 80)
 
     final, sublns = generate_str(in_file, paper_type=paper_type)
 
