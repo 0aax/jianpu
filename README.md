@@ -44,9 +44,9 @@ X: Percussion (or placeholder for rhythms without pitch)
 ```
 ### 2.3 Accidentals
 ```
-\sharp: Sharp
-\flat: Flat
-\natural: Natural
+\sharp{1}: Sharp
+\flat{1}: Flat
+\natural{1}: Natural
 ```
 ### 2.4 Duration
 ```
