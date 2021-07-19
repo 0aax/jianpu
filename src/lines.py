@@ -99,7 +99,10 @@ def add_sym_sub(primary, subln_prim, subln_sec, helper=None, return_as_str=True,
         
         if not updated:
             p = primary[i_prim]
-            primary_tmp[i_prim] = ' '*cfg.sym_factor[cfg.sym_opp[p]]
+            if p in cfg.sym_opp: psym = cfg.sym_opp[p]
+            elif p in cfg.time_dn_opp: psym = 'two'
+            else: psym = 'none'
+            primary_tmp[i_prim] = ' '*cfg.sym_factor[psym]
             i_prim += 1
 
     if return_as_str: return ''.join(primary_tmp)
@@ -172,7 +175,7 @@ def gen_primary_str(primary):
         if isinstance(n, int):
             if in_g or in_d: return str(n), cfg.note_base_width
             else: return str(n) + '   ', cfg.note_base_width + cfg.space_base_width * cfg.sym_factor['ccht']
-        elif n[0] == 'time': return ' ' + cfg.time_up[n[1]] + cfg.time_dn[n[2]] + '  ', cfg.note_base_width + cfg.space_base_width*3
+        elif n[0] == 'time': return cfg.time_dn[n[2]] + cfg.time_up[n[1]] + '  ', cfg.note_base_width + cfg.space_base_width*2
         elif n[0] in cfg.types_bars: return cfg.sym[n[0]], cfg.sym_factor[n[0]]*cfg.space_base_width
         elif n[0] in cfg.one_param_elems_prim_back:
             n_tmp, n_alloc = get_walloc(n[1], in_g=in_g, in_d=in_d)

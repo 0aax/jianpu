@@ -68,8 +68,11 @@ sym_factor = {'bar': 2,
               'ddot': 2,
                 
               'space': 1,
-              'time': 1,
-              'time2': 0}
+              'big_space': 2,
+              
+              'none': 0,
+              'one': 1,
+              'two': 2}
 
 sym = {'bar': '|',
        'lebar': '[',
@@ -88,9 +91,7 @@ sym = {'bar': '|',
        'up': u'\u0303',
        
        'space': ' ',
-       
-       'time': u'\u031A',
-       'time2': u'\u0312'}
+       'big_space': '!'}
 
 sym_opp = {v: k for k, v in sym.items()}
 
@@ -105,16 +106,18 @@ dur_sym = {'sqvr': {1: u'\u0307', 2: u'\u0305'},
            'ccht': {1: '', 2: ''},
            'mm':   {1: '', 2: ''}}
 
-time_dn = {0: u'\u030E',
-           1: u'\u030F',
-           2: u'\u0310',
-           3: u'\u0311',
-           4: u'\u0312',
-           5: u'\u0313',
-           6: u'\u0314',
-           7: u'\u0315',
-           8: u'\u0316',
-           9: u'\u0317'}
+time_dn = {0: 'A',
+           1: 'B',
+           2: 'C',
+           3: 'D',
+           4: 'E',
+           5: 'F',
+           6: 'G',
+           7: 'H',
+           8: 'I',
+           9: 'J'}
+
+time_dn_opp = {v: k for k, v in time_dn.items()}
 
 time_up = {0: u'\u0318',
            1: u'\u0319',

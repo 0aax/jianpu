@@ -17,6 +17,7 @@ def generate_str(file, paper_type='letter'):
 
     pl = get_primary(measured_w_bar)
     notes_str, walloc = gen_primary_str(pl)
+    print(walloc)
     rr = rearrange(measured_no_bar)
 
     notes_lst = arr_from_string(notes_str)
@@ -33,7 +34,8 @@ def generate_str(file, paper_type='letter'):
     for i in range(1, len_ca):
         sb_i = rearrange([ca[i]], ignore_time=True)
         is_ending = i == len_ca - 1
-        sublns.append(''.join(add_sym_sub(notes_str, sb_prim, sb_i, helper=pd, return_as_str=False, ending_subln=is_ending)))
+        sb = add_sym_sub(notes_str, sb_prim, sb_i, helper=pd, return_as_str=False, ending_subln=is_ending)
+        sublns.append(''.join(sb))
 
     return final, sublns
 
