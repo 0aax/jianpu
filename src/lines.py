@@ -166,7 +166,7 @@ def get_primary(measured_notes):
     prim = [[get_elems(n) for n in measure] for measure in measured_notes]
     return prim
 
-def gen_primary_str(primary):
+def gen_primary_str(primary, original, max_line_width):
     """
     Returns a character-by-character array of the primary line, as well as a corresponding array containing the exact width allocation.
     """
@@ -216,16 +216,19 @@ def gen_primary_str(primary):
             else: break
         return num_comp
 
-    walloc = 0
-    notes = ''
+    walloc = []
+    notes = []
+    notes_orig = []
+    notes_i, walloc_i = 0, 0
     first_measure = True
-    for measure in primary:
+    for i, measure in enumerate(primary):
         measure_alloc = [get_walloc(n) for n in measure]
         notes_tmp, walloc_tmp = zip(*measure_alloc)
         notes_tmp = ''.join(notes_tmp)
         walloc_tmp = sum(walloc_tmp)
 
-        num_space = count_comp(notes_tmp[-2::-1])
+        # make sure that the spacing is correct
+        num_space = count_comp(notes_tmp[-2::-1], ' ')
         no_bar_notes = notes_tmp[:-1]
         bar_notes = notes_tmp[-1]
         if num_space < 2:
@@ -234,16 +237,23 @@ def gen_primary_str(primary):
         elif num_space > 2:
             notes_tmp = no_bar_notes[:(2-num_space)] + bar_notes
             walloc_tmp -= cfg.space_base_width*(num_space-2)
+        
+        if not first_measure and walloc_tmp + walloc[-1] > max_line_width:
+            notes_i += 1
+            walloc_i += 1
+            first_measure = True
 
         if first_measure:
-            notes += notes_tmp
-            walloc += walloc_tmp
+            notes.append(notes_tmp)
+            walloc.append(walloc_tmp)
+            notes_orig.append([original[i]])
             first_measure = False
         else:
-            notes += '  ' + notes_tmp
-            walloc += 30 + walloc_tmp
+            notes[notes_i] += '  ' + notes_tmp
+            walloc[walloc_i] += 30 + walloc_tmp
+            notes_orig[-1].append(original[i])
 
-    return notes, walloc
+    return notes, walloc, notes_orig
 
 def get_dur_group(measured_notes):
     """
