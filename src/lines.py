@@ -36,6 +36,7 @@ def add_sym(primary, notes_syms, helper=None, return_as_str=True):
 
     len_prim, len_ns = len(primary), len(notes_syms)
     i_prim, i_tg = 0, 0
+    aln_height = 0
     while i_prim < len_prim:
         updated = False
         if i_tg < len_ns:
@@ -47,7 +48,8 @@ def add_sym(primary, notes_syms, helper=None, return_as_str=True):
             else: curr_helper = 0
             if curr_prim.isdigit():
                 if isinstance(curr_tg, list) and int(curr_prim) == curr_tg[1]:
-                    primary_tmp[i_prim] = utls.sym_to_add(curr_helper, curr_tg)
+                    primary_tmp[i_prim], h_tmp = utls.sym_to_add(curr_helper, curr_tg)
+                    aln_height = max(aln_height, h_tmp)
                     i_prim += 1
                     i_tg += 1
                     updated = True
@@ -59,8 +61,8 @@ def add_sym(primary, notes_syms, helper=None, return_as_str=True):
         if not updated:
             i_prim += 1
 
-    if return_as_str: return ''.join(primary_tmp)
-    else: return primary_tmp
+    if return_as_str: return ''.join(primary_tmp), aln_height
+    else: return primary_tmp, aln_height
 
 def add_sym_sub(primary, subln_prim, subln_sec, helper=None, return_as_str=True, ending_subln=False):
     """
@@ -92,7 +94,7 @@ def add_sym_sub(primary, subln_prim, subln_sec, helper=None, return_as_str=True,
                 if curr_subln is None:
                     primary_tmp[i_prim] = '  '
                 else:
-                    primary_tmp[i_prim] = utls.sym_to_add(curr_helper, subln_sec[i_tg]) + dur_sym
+                    primary_tmp[i_prim] = utls.sym_to_add(curr_helper, subln_sec[i_tg])[0] + dur_sym
                 i_prim += 1
                 i_tg += 1
                 updated = True
@@ -171,37 +173,37 @@ def gen_primary_str(primary, original, max_line_width):
     Returns a character-by-character array of the primary line, as well as a corresponding array containing the exact width allocation.
     """
 
-    def get_walloc(n, in_g=False, in_d=False):
+    def get_alloc(n, in_g=False, in_d=False):
         if isinstance(n, int):
             if in_g or in_d: return str(n), cfg.note_base_width
             else: return str(n) + '   ', cfg.note_base_width + cfg.space_base_width * cfg.sym_factor['ccht']
         elif n[0] == 'time': return cfg.time_dn[n[2]] + cfg.time_up[n[1]] + '  ', cfg.note_base_width + cfg.space_base_width*2
         elif n[0] in cfg.types_bars: return cfg.sym[n[0]], cfg.sym_factor[n[0]]*cfg.space_base_width
         elif n[0] in cfg.one_param_elems_prim_back:
-            n_tmp, n_alloc = get_walloc(n[1], in_g=in_g, in_d=in_d)
-            return n_tmp + cfg.sym[n[0]], n_alloc + cfg.sym_factor[n[0]]*cfg.space_base_width
+            n_tmp, n_walloc = get_alloc(n[1], in_g=in_g, in_d=in_d)
+            return n_tmp + cfg.sym[n[0]], n_walloc + cfg.sym_factor[n[0]]*cfg.space_base_width
         elif n[0] in cfg.one_param_elems_prim_front:
-            n_tmp, n_alloc = get_walloc(n[1], in_g=in_g, in_d=in_d)
-            return cfg.sym[n[0]] + n_tmp, n_alloc + cfg.sym_factor[n[0]]*cfg.space_base_width
+            n_tmp, n_walloc = get_alloc(n[1], in_g=in_g, in_d=in_d)
+            return cfg.sym[n[0]] + n_tmp, n_walloc + cfg.sym_factor[n[0]]*cfg.space_base_width
         elif n[0] in cfg.duration:
             notes_tmp = n[1:]
             k = cfg.sym_factor[n[0]]
-            n_tmp, n_alloc = '', 0
+            n_tmp, n_walloc = '', 0
             for v in notes_tmp:
-                v_tmp, v_alloc = get_walloc(v, in_g=in_g, in_d=True)
+                v_tmp, v_walloc = get_alloc(v, in_g=in_g, in_d=True)
                 n_tmp += v_tmp + ' '*k
-                n_alloc += v_alloc + cfg.space_base_width*k
+                n_walloc += v_walloc + cfg.space_base_width*k
             if not in_g:
-                return n_tmp + '  ', n_alloc + 30
+                return n_tmp + '  ', n_walloc + 30
             else:
-                return n_tmp, n_alloc
+                return n_tmp, n_walloc
         elif n[0] == 'group':
-            n_walloc = [get_walloc(e, in_g=True, in_d=in_d) for e in n[1:]]
-            n_tmp, n_alloc = zip(*n_walloc)
+            n_walloc = [get_alloc(e, in_g=True, in_d=in_d) for e in n[1:]]
+            n_tmp, n_walloc = zip(*n_walloc)
             n_tmp = [l for v in n_tmp for l in v]
             n_tmp = ''.join(n_tmp) + '  '
-            n_alloc = sum(n_alloc) + cfg.space_base_width*2
-            return n_tmp, n_alloc
+            n_walloc = sum(n_walloc) + cfg.space_base_width*2
+            return n_tmp, n_walloc
         else:
             print('else', n)
             return str(n), cfg.note_base_width
@@ -222,8 +224,8 @@ def gen_primary_str(primary, original, max_line_width):
     notes_i, walloc_i = 0, 0
     first_measure = True
     for i, measure in enumerate(primary):
-        measure_alloc = [get_walloc(n) for n in measure]
-        notes_tmp, walloc_tmp = zip(*measure_alloc)
+        measure_walloc = [get_alloc(n) for n in measure]
+        notes_tmp, walloc_tmp = zip(*measure_walloc)
         notes_tmp = ''.join(notes_tmp)
         walloc_tmp = sum(walloc_tmp)
 

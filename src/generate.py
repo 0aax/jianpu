@@ -16,9 +16,10 @@ def generate_str(file, paper_type='letter'):
     measured_no_bar = comp.gen_measured_notes(comp.notes, with_bar=False)
 
     pl = get_primary(measured_w_bar)
-    notes_str, walloc, notes_orig = gen_primary_str(pl, measured_no_bar, cfg.paper_sizes[paper_type][0])
+    notes_str, _, notes_orig = gen_primary_str(pl, measured_no_bar, cfg.paper_sizes[paper_type][0])
 
     all_final = []
+    aln_heights = []
     all_sublns = []
 
     for i, mnb in enumerate(notes_orig):
@@ -28,22 +29,23 @@ def generate_str(file, paper_type='letter'):
         dg = get_dur_group(mnb)
         pd = match_prim_dur(notes_lst, dg)
 
-        tmp = add_sym(notes_str[i], rr, helper=pd, return_as_str=False)
+        tmp, aln_h = add_sym(notes_str[i], rr, helper=pd, return_as_str=False)
         final = ''.join(element_wise_sum(tmp, pd))
         all_final.append(final)
+        aln_heights.append(aln_h)
 
-        ca = chords_arranged(measured_no_bar)
+        ca = chords_arranged(mnb)
         len_ca = len(ca)
         sublns = []
         sb_prim = ca[0]
-        for i in range(1, len_ca):
-            sb_i = rearrange([ca[i]], ignore_time=True)
-            is_ending = i == len_ca - 1
-            sb = add_sym_sub(notes_str[0], sb_prim, sb_i, helper=pd, return_as_str=False, ending_subln=is_ending)
+        for j in range(1, len_ca):
+            sb_j = rearrange([ca[j]], ignore_time=True)
+            is_ending = j == len_ca - 1
+            sb = add_sym_sub(notes_str[i], sb_prim, sb_j, helper=pd, return_as_str=False, ending_subln=is_ending)
             sublns.append(''.join(sb))
         all_sublns.append(sublns)
 
-    return all_final, all_sublns
+    return all_final, all_sublns, aln_heights
 
 def write_to_paper(x, y, in_file, out_file, paper_type='letter'):
     paper = Image.new('RGB', cfg.paper_sizes[paper_type], (255, 255, 255))
@@ -55,19 +57,20 @@ def write_to_paper(x, y, in_file, out_file, paper_type='letter'):
     notes = ImageFont.truetype("assets/jianpu2.otf", 55)
     notes_small = ImageFont.truetype("assets/jianpu2_small.otf", 55)
 
-    all_final, all_sublns = generate_str(in_file, paper_type=paper_type)
+    all_final, all_sublns, aln_heights = generate_str(in_file, paper_type=paper_type)
 
     start_y = y
 
     for i, fln in enumerate(all_final):
+        aln_h = aln_heights[i]
+        start_y += aln_h
         paper_editable.text((x, start_y), fln, fill=(0, 0, 0), font=notes, features=['-kern'])
-
         for i, sb in enumerate(all_sublns[i]):
             space = 70 if i == 0 else 60
             start_y += space
             paper_editable.text((x, start_y), sb, fill=(0, 0, 0), font=notes_small, features=['-kern'])
-        
-        start_y += 200
+        if len(all_sublns[i]) == 0: start_y += 70
+        start_y += cfg.prim_vert_space
 
     cwd = os.getcwd()
     paper.save(os.path.join(cwd, out_file), 'PNG')
