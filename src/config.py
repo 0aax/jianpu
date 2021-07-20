@@ -53,6 +53,9 @@ one_param = directions | tie_slur | dynamics | {'ddot', 'dot', 'trem', 'grace'}
 two_param = {'time', 'fing'} | octaves
 n_param = duration | {'group'}
 
+editable_spaces = {u'\u0307', u'\u0305', u'\u0306', u'\u0304', ' '}
+max_edit_passes = 4
+
 sym_factor = {'bar': 2,
               'dbar': 2,
               'lebar': 2,
@@ -100,6 +103,12 @@ sym = {'bar': '|',
        'big_space': '!'}
 
 sym_opp = {v: k for k, v in sym.items()}
+
+editable_sym = {u'\u0307': 2,
+                u'\u0306': 1,
+                u'\u0305': 2,
+                u'\u0304': 1,
+                ' ': 0}
 
 loct_info = {u'\u0305', u'\u0304'}
 oct_sym = {-2: {0: u'\u030D', 1: u'\u0309', 2: u'\u030B'},

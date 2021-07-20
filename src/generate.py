@@ -17,8 +17,8 @@ def generate_str(file, paper_type='letter'):
 
     pl = get_primary(measured_w_bar)
     notes, bars, walloc, notes_orig = gen_primary_str(pl, measured_no_bar, cfg.paper_sizes[paper_type][0])
-    print(walloc)
-    all_final = []
+    
+    final_prelim = []
     aln_heights = []
     all_sublns = []
 
@@ -31,11 +31,16 @@ def generate_str(file, paper_type='letter'):
         pd = match_prim_dur(notes_lst, dg)
 
         tmp, aln_h = add_sym(notes[i], rr, helper=pd, return_as_str=False)
-        final = ''.join(element_wise_sum(tmp, pd))
-        all_final.append(final)
+        final = element_wise_sum(tmp, pd)
+        final_prelim.append(final)
         aln_heights.append(aln_h)
 
+    print(final_prelim)
+    all_final, mnb_lines = combine_measures(final_prelim, measured_no_bar, bars, walloc, paper_type=paper_type)
+
+    for j, mnb in enumerate(mnb_lines):
         ca = chords_arranged(mnb)
+
         len_ca = len(ca)
         sublns = []
         sb_prim = ca[0]
@@ -47,14 +52,89 @@ def generate_str(file, paper_type='letter'):
         all_sublns.append(sublns)
     
     # build lines
+    # all_final = compress_spaces(all_final)
+    # print(all_final, '\n')
+    # print(all_sublns)
 
+    # all_final = [''.join(i) for i in all_final]
+    # all_sublns = [[''.join(j) for j in i] if len(i) != 0 else [] for i in all_sublns]
 
     return all_final, all_sublns, aln_heights
 
-def combine_measures(primary, bars, walloc, sublns, paper_type='letter'):
+def combine_measures(primary, measures, bars, walloc, paper_type='letter'):
+    """
+    Combines measures into lines of the target length.
+    """
 
-    def edit_spacing(ln):
-        pass
+    def compress_spaces(msrs):
+        """
+        Compresses editable spaces into one element in the array.
+        """
+        comp = []
+        for _, msr in enumerate(msrs):
+            cp_tmp = []
+            curr_comp, num_comp = '', 0
+            for _, n in enumerate(msr):
+                n_set = set(v for v in n)
+                if n_set.issubset(cfg.editable_spaces): curr_comp += n; num_comp += 1
+                elif curr_comp != '':
+                    cp_tmp += [curr_comp, n]
+                    curr_comp, num_comp = '', 0
+                else:
+                    cp_tmp.append(n)
+            comp.append(cp_tmp)
+        return comp
+
+    def editable_spaces(cpmsrs):
+        """
+        Returns dictionary of editable spaces. Spaces are grouped in arrays depending on whether they are connected or not.
+        """
+        idx = {0: [], 1: [], 2: []}
+        for i, msr in enumerate(cpmsrs):
+            curr_group = ''
+            group_spaces = []
+            for j, n in enumerate(msr):
+                n_set = set(v for v in n)
+                n_set_nospace = set(v for v in n if v != ' ')
+                if n_set.issubset(cfg.editable_spaces):
+                    curr_space = list(n_set_nospace)[0] if len(n_set_nospace) != 0 else ' '
+                    if curr_space == curr_group: group_spaces.append((i, j))
+                    elif len(group_spaces) != 0:
+                        idx[cfg.editable_sym[curr_group]].append((curr_group, group_spaces))
+                        curr_group = curr_space
+                        group_spaces = [(i, j)]
+                    else:
+                        curr_group = curr_space
+                        group_spaces = [(i, j)]
+                else: continue
+            if len(group_spaces) != 0: idx[cfg.editable_sym[curr_group]].append((curr_group, group_spaces))
+        return idx
+
+    def edit_spacing(prim, edtb, to_expand):
+        """
+        Add spaces to reach target line length.
+        """
+        num_spaces_to_add = int(to_expand / cfg.space_base_width)
+        print(num_spaces_to_add)
+        
+        useable = [j[1] for _, i in edtb.items() for j in i if len(i) != 0]
+        useable_sym = [j[0] for _, i in edtb.items() for j in i if len(i) != 0]
+
+        i_use, len_use = 0, len(useable)
+
+        passes = 0
+        while num_spaces_to_add > 0:
+            curr_spaces = useable[i_use]
+            if num_spaces_to_add >= len(curr_spaces):
+                for i, j in curr_spaces:
+                    sym_tmp = useable_sym[i_use] if useable_sym[i_use] != ' ' else ''
+                    prim[i][j] += ' ' + sym_tmp
+                    num_spaces_to_add -= 1
+            if i_use < len_use - 1: i_use += 1
+            else: i_use = 0
+            passes += 1
+
+        return prim
 
     margin = cfg.side_margin[paper_type]
     target_width = cfg.paper_sizes[paper_type][0] - margin*2
@@ -62,29 +142,54 @@ def combine_measures(primary, bars, walloc, sublns, paper_type='letter'):
     curr_line_width = 0
 
     plines = []
-    slines = []
+    measured_lns = []
 
     for i, p_ln in enumerate(primary):
         add_w = walloc[i] + cfg.space_base_width*6
 
-        if curr_line_width + add_w == target_width: opt = 0
-        if curr_line_width != 0 and curr_line_width + add_w < target_width: opt = 1
-        elif curr_line_width == 0 and curr_line_width + add_w < target_width: opt = 2
-        elif abs(curr_line_width + add_w - target_width) < abs(curr_line_width - target_width): opt = 3
-        else: opt = 4
-
-        if opt == 1 or opt == 3:
-            plines[-1] += [' ']*2 + p_ln + [' ']*2 + [bars[i]]
-            slines[-1] += [' ']*2 + sublns[i] + [' ']*4
-            curr_line_width += add_w + cfg.space_base_width*6
+        if len(plines) == 0: opt = 0
+        elif curr_line_width + add_w == target_width: opt = 1
+        elif curr_line_width + add_w < target_width: opt = 2
+        elif abs(curr_line_width + add_w - target_width) < abs(curr_line_width - target_width):
+            opt = 3; to_expand = curr_line_width + add_w - target_width
         else:
-            plines.append(p_ln + [' ']*2 + [bars[i]])
-            slines.append(sublns[i] + [' ']*4)
-            curr_line_width += add_w - cfg.space_base_width*2
-        
-        if opt == 3: plines[-1], slines[-1] = edit_spacing(plines[-1], slines[-1])
-        elif opt == 4: plines[-2], slines[-2] = edit_spacing(plines[-2], slines[-2])
+            opt = 4; to_expand = target_width - curr_line_width
 
+        if opt in {1, 2}:
+            plines[-1] += [p_ln]
+            measured_lns[-1] += [measures[i]]
+            curr_line_width += add_w
+        elif opt == 3:
+            plines[-1] += [p_ln]
+            measured_lns[-1] += [measures[i]]
+            curr_line_width = 0
+        else:
+            plines.append([p_ln])
+            measured_lns.append([measures[i]])
+            curr_line_width = add_w - cfg.space_base_width*2
+
+        # if opt == 3:
+        #     cp_plines = compress_spaces(plines[-1])
+        #     print(cp_plines)
+        #     ed_plines = editable_spaces(cp_plines)
+        #     plines[-1] = edit_spacing(cp_plines, ed_plines, to_expand)
+        #     curr_line_width = 0
+        if opt == 4:
+            cp_plines = compress_spaces(plines[-2])
+            ed_plines = editable_spaces(cp_plines)
+            plines[-2] = edit_spacing(cp_plines, ed_plines, to_expand)
+    
+    i_bar = 0
+    lines_fin = []
+    for line in plines:
+        line_str = ''
+        for j, measure in enumerate(line):
+            if j == 0: line_str += ''.join(measure) + '  ' + bars[i_bar]
+            else: line_str += '  ' + ''.join(measure) + '  ' + bars[i_bar]
+            i_bar += 1
+        lines_fin.append(line_str)
+
+    return lines_fin, measured_lns
 
 def write_to_paper(y, in_file, out_file, paper_type='letter', gen_txt_files=False):
     x = cfg.side_margin[paper_type]
