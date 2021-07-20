@@ -176,7 +176,7 @@ def gen_primary_str(primary, original, max_line_width):
     def get_alloc(n, in_g=False, in_d=False):
         if isinstance(n, int):
             if in_g or in_d: return str(n), cfg.note_base_width
-            else: return str(n) + '   ', cfg.note_base_width + cfg.space_base_width * cfg.sym_factor['ccht']
+            else: return str(n) + ' '*cfg.sym_factor['ccht'], cfg.note_base_width + cfg.space_base_width*cfg.sym_factor['ccht']
         elif n[0] == 'time': return cfg.time_dn[n[2]] + cfg.time_up[n[1]] + '  ', cfg.note_base_width + cfg.space_base_width*2
         elif n[0] in cfg.types_bars: return cfg.sym[n[0]], cfg.sym_factor[n[0]]*cfg.space_base_width
         elif n[0] in cfg.one_param_elems_prim_back:
