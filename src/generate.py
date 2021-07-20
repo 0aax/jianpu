@@ -47,30 +47,55 @@ def generate_str(file, paper_type='letter'):
 
     return all_final, all_sublns, aln_heights
 
-def write_to_paper(x, y, in_file, out_file, paper_type='letter'):
+def write_to_paper_from_txt(in_file, out_file, paper_type='letter'):
     paper = Image.new('RGB', cfg.paper_sizes[paper_type], (255, 255, 255))
     paper_editable = ImageDraw.Draw(paper)
 
-    NotoSerif_reg = ImageFont.truetype("assets/NotoSerifCJKsc-Regular.otf", 50)
-    NotoSerif_li = ImageFont.truetype("assets/NotoSerifCJKsc-Light.otf", 50)
+    NotoSerif_reg = ImageFont.truetype('assets/NotoSerifCJKsc-Regular.otf', 50)
+    NotoSerif_li = ImageFont.truetype('assets/NotoSerifCJKsc-Light.otf', 50)
 
-    notes = ImageFont.truetype("assets/jianpu2.otf", 55)
-    notes_small = ImageFont.truetype("assets/jianpu2_small.otf", 55)
+    notes = ImageFont.truetype('assets/jianpu2.otf', 55)
+    notes_small = ImageFont.truetype('assets/jianpu2_small.otf', 55)
+    pass
+
+
+def write_to_paper(y, in_file, out_file, paper_type='letter', gen_txt_files=False):
+    x = cfg.side_margin
+    paper = Image.new('RGB', cfg.paper_sizes[paper_type], (255, 255, 255))
+    paper_editable = ImageDraw.Draw(paper)
+
+    NotoSerif_reg = ImageFont.truetype('assets/NotoSerifCJKsc-Regular.otf', 50)
+    NotoSerif_li = ImageFont.truetype('assets/NotoSerifCJKsc-Light.otf', 50)
+
+    notes = ImageFont.truetype('assets/jianpu2.otf', 55)
+    notes_small = ImageFont.truetype('assets/jianpu2_small.otf', 55)
 
     all_final, all_sublns, aln_heights = generate_str(in_file, paper_type=paper_type)
 
     start_y = y
 
+    if gen_txt_files:
+        f_lns = open('output/composition.txt', 'w')
+
     for i, fln in enumerate(all_final):
         aln_h = aln_heights[i]
         start_y += aln_h
         paper_editable.text((x, start_y), fln, fill=(0, 0, 0), font=notes, features=['-kern'])
-        for i, sb in enumerate(all_sublns[i]):
-            space = 70 if i == 0 else 60
+        if gen_txt_files:
+            f_lns.write('## primary ({}, {})'.format(x, start_y) + '\n')
+        f_lns.write(fln + '\n')
+
+        for j, sb in enumerate(all_sublns[i]):
+            space = 70 if j == 0 else 60
             start_y += space
             paper_editable.text((x, start_y), sb, fill=(0, 0, 0), font=notes_small, features=['-kern'])
+            if gen_txt_files:
+                f_lns.write('## sub ({}, {})'.format(x, start_y) + '\n')
+                f_lns.write(sb + '\n')
         if len(all_sublns[i]) == 0: start_y += 70
         start_y += cfg.prim_vert_space
+    
+    if gen_txt_files: f_lns.close()
 
     cwd = os.getcwd()
     paper.save(os.path.join(cwd, out_file), 'PNG')

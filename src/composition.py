@@ -4,7 +4,7 @@ from src.utils import deep_sum
 import src.config as cfg
 
 class Composition:
-    def __init__(self, parsed=list(), paper_type='letter', margins=[75, 75, 75, 75]):
+    def __init__(self, parsed, paper_type='letter', margins=[75, 75, 75, 75]):
         
         self.paper_type = paper_type
         self.parsed = parsed

@@ -217,12 +217,15 @@ def gen_primary_str(primary, original, max_line_width):
             if n == comp: num_comp += 1
             else: break
         return num_comp
+    
+    avail_space = max_line_width - cfg.side_margin*2
 
     walloc = []
     notes = []
     notes_orig = []
     notes_i, walloc_i = 0, 0
     first_measure = True
+
     for i, measure in enumerate(primary):
         measure_walloc = [get_alloc(n) for n in measure]
         notes_tmp, walloc_tmp = zip(*measure_walloc)
@@ -240,7 +243,10 @@ def gen_primary_str(primary, original, max_line_width):
             notes_tmp = no_bar_notes[:(2-num_space)] + bar_notes
             walloc_tmp -= cfg.space_base_width*(num_space-2)
         
-        if not first_measure and walloc_tmp + walloc[-1] > max_line_width:
+        if not first_measure and 30 + walloc_tmp + walloc[-1] > avail_space:
+            pred_diff = 30 + walloc_tmp + walloc[-1] - avail_space
+            curr_diff = avail_space - walloc[-1]
+            # if pred_diff > curr_diff:
             notes_i += 1
             walloc_i += 1
             first_measure = True

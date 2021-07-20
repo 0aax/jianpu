@@ -4,6 +4,7 @@ measures_per_row = 6
 dpi = 300 # typical print dpi
 paper_sizes = {'a4': (2480, 3508),
                'letter': (2550, 3300)}
+side_margin = 70
 
 header_elems = {'title', 'composer', 'instrument', 'affiliation', 'time', 'key', 'tempo'}
 types_bars = {'bar', 'dbar', 'ebar', 'lrep', 'rrep'}
@@ -12,9 +13,13 @@ n_commands = {'chord', 'group', 'qvr', 'sqvr', 'ccht', 'mm', 'sbrve'}
 
 pitch = {'oct', 'sharp', 'flat', 'natural'}
 
+prim_vert_space = 150
 # note width scaling factors
 note_base_width = 30
 space_base_width = int(30/2)
+
+note_base_height = 50
+above_note_height = 20
 
 notes_space = {'sqvr': space_base_width*1,
                'qvr': space_base_width*2,
