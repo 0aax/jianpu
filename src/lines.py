@@ -217,14 +217,11 @@ def gen_primary_str(primary, original, max_line_width):
             if n == comp: num_comp += 1
             else: break
         return num_comp
-    
-    avail_space = max_line_width - cfg.side_margin*2
 
     walloc = []
     notes = []
+    bars = []
     notes_orig = []
-    notes_i, walloc_i = 0, 0
-    first_measure = True
 
     for i, measure in enumerate(primary):
         measure_walloc = [get_alloc(n) for n in measure]
@@ -235,33 +232,17 @@ def gen_primary_str(primary, original, max_line_width):
         # make sure that the spacing is correct
         num_space = count_comp(notes_tmp[-2::-1], ' ')
         no_bar_notes = notes_tmp[:-1]
-        bar_notes = notes_tmp[-1]
-        if num_space < 2:
-            notes_tmp = no_bar_notes + ' '*(2-num_space) + bar_notes
-            walloc_tmp += cfg.space_base_width*(2-num_space)
-        elif num_space > 2:
-            notes_tmp = no_bar_notes[:(2-num_space)] + bar_notes
-            walloc_tmp -= cfg.space_base_width*(num_space-2)
+        bars.append(notes_tmp[-1])
+
+        if num_space > 0:
+            notes_tmp = no_bar_notes[:(-num_space)]
+            walloc_tmp -= cfg.space_base_width*(num_space)
         
-        if not first_measure and 30 + walloc_tmp + walloc[-1] > avail_space:
-            pred_diff = 30 + walloc_tmp + walloc[-1] - avail_space
-            curr_diff = avail_space - walloc[-1]
-            # if pred_diff > curr_diff:
-            notes_i += 1
-            walloc_i += 1
-            first_measure = True
+        notes.append(notes_tmp)
+        walloc.append(walloc_tmp)
+        notes_orig.append(original[i])
 
-        if first_measure:
-            notes.append(notes_tmp)
-            walloc.append(walloc_tmp)
-            notes_orig.append([original[i]])
-            first_measure = False
-        else:
-            notes[notes_i] += '  ' + notes_tmp
-            walloc[walloc_i] += 30 + walloc_tmp
-            notes_orig[-1].append(original[i])
-
-    return notes, walloc, notes_orig
+    return notes, bars, walloc, notes_orig
 
 def get_dur_group(measured_notes):
     """

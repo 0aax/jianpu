@@ -4,7 +4,8 @@ measures_per_row = 6
 dpi = 300 # typical print dpi
 paper_sizes = {'a4': (2480, 3508),
                'letter': (2550, 3300)}
-side_margin = 70
+side_margin = {'a4': 70,
+               'letter': 90}
 
 header_elems = {'title', 'composer', 'instrument', 'affiliation', 'time', 'key', 'tempo'}
 types_bars = {'bar', 'dbar', 'ebar', 'lrep', 'rrep'}
