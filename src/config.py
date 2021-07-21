@@ -6,6 +6,9 @@ paper_sizes = {'a4': (2480, 3508),
                'letter': (2550, 3300)}
 side_margin = {'a4': 70,
                'letter': 90}
+left_start = {'a4': 60,
+              'letter': 80}
+line_break = 200
 
 header_elems = {'title', 'composer', 'instrument', 'affiliation', 'time', 'key', 'tempo'}
 types_bars = {'bar', 'dbar', 'ebar', 'lrep', 'rrep'}
@@ -14,7 +17,6 @@ n_commands = {'chord', 'group', 'qvr', 'sqvr', 'ccht', 'mm', 'sbrve'}
 
 pitch = {'oct', 'sharp', 'flat', 'natural'}
 
-prim_vert_space = 150
 # note width scaling factors
 note_base_width = 30
 space_base_width = int(30/2)
@@ -73,8 +75,8 @@ sym_factor = {'bar': 2,
 
               'sharp': 1,
               'flat': 1,
-
               'natural': 1,
+
               'dot': 1, 
               'ddot': 2,
                 
@@ -84,6 +86,17 @@ sym_factor = {'bar': 2,
               'none': 0,
               'one': 1,
               'two': 2}
+
+hgt_factor = {'down': 2,
+              'up': 2,
+              
+              'stie': 4,
+              'etie': 4,
+              
+              'sslur': 4,
+              'eslur': 4,
+              
+              'trem': 2}
 
 sym = {'bar': '|',
        'lebar': '[',
