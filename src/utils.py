@@ -38,10 +38,10 @@ def sym_to_add(h, sym):
         if s in cfg.ignore_syms: tmp = ''
         elif isinstance(s, str):
             tmp = cfg.sym[s]
-            if s in cfg.directions: height += 2
+            if s in cfg.hgt_factor: height = max(height, cfg.hgt_factor[s])
         elif s[0] == 'oct':
             tmp = cfg.oct_sym[s[1]][h]
-            if s[1] > 0: height += s[1]
+            if s[1] > 0: height = max(height, 1)
         else: raise NotImplementedError("The symbol {} is not supported".format(s))
         to_add += tmp
     return to_add, height*cfg.above_note_height

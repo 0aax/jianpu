@@ -35,7 +35,7 @@ def generate_str(file, paper_type='letter'):
         final_prelim.append(final)
         aln_heights.append(aln_h)
     
-    all_final, mnb_lines = combine_measures(final_prelim, measured_no_bar, bars, walloc, paper_type=paper_type)
+    all_final, mnb_lines, aln_heights = combine_measures(final_prelim, measured_no_bar, bars, aln_heights, walloc, paper_type=paper_type)
 
     for i, mnb in enumerate(mnb_lines):
         ca = chords_arranged(mnb)
@@ -46,7 +46,6 @@ def generate_str(file, paper_type='letter'):
             sb_j = rearrange([ca[j]], ignore_time=True)
             is_ending = j == len_ca - 1
             sb = add_sym_sub(all_final[i], sb_prim, sb_j, return_as_str=False, ending_subln=is_ending)
-            print(len(''.join(all_final[i])), len(''.join(sb)))
             sublns.append(''.join(sb))
         all_sublns.append(sublns)
 
@@ -54,7 +53,7 @@ def generate_str(file, paper_type='letter'):
 
     return all_final, all_sublns, aln_heights
 
-def combine_measures(primary, measures, bars, walloc, paper_type='letter', return_str=False):
+def combine_measures(primary, measures, bars, heights, walloc, paper_type='letter', return_str=False):
     """
     Combines measures into lines of the target length.
     """
@@ -107,8 +106,9 @@ def combine_measures(primary, measures, bars, walloc, paper_type='letter', retur
         """
         Add spaces to reach target line length.
         """
+        print(to_edit/cfg.space_base_width)
         edit_op = (lambda orig, mod: orig + mod) if to_edit > 0 else (lambda orig, mod: orig.replace(mod, '', 1))
-        num_spaces_to_edit = int(abs(to_edit) / cfg.space_base_width) + 2
+        num_spaces_to_edit = int(abs(to_edit) / cfg.space_base_width)
         
         useable = [j[1] for _, i in edtb.items() for j in i if len(i) != 0]
         useable_sym = [j[0] for _, i in edtb.items() for j in i if len(i) != 0]
@@ -137,6 +137,7 @@ def combine_measures(primary, measures, bars, walloc, paper_type='letter', retur
 
     plines = []
     measured_lns = []
+    measured_heights = []
 
     for i, p_ln in enumerate(primary):
         add_w = walloc[i] + cfg.space_base_width*6
@@ -152,14 +153,17 @@ def combine_measures(primary, measures, bars, walloc, paper_type='letter', retur
         if opt in {1, 2}:
             plines[-1] += [p_ln]
             measured_lns[-1] += [measures[i]]
+            measured_heights[-1] = max(measured_heights[-1], heights[i])
             curr_line_width += add_w
         elif opt == 3:
             plines[-1] += [p_ln]
             measured_lns[-1] += [measures[i]]
+            measured_heights.append(heights[i])
             curr_line_width = 0
         else:
             plines.append([p_ln])
             measured_lns.append([measures[i]])
+            measured_heights.append(heights[i])
             curr_line_width = add_w - cfg.space_base_width*2
 
         if opt == 3:
@@ -192,10 +196,10 @@ def combine_measures(primary, measures, bars, walloc, paper_type='letter', retur
                 i_bar += 1
             lines_fin.append(line_str)
 
-    return lines_fin, measured_lns
+    return lines_fin, measured_lns, measured_heights
 
 def write_to_paper(y, in_file, out_file, paper_type='letter', gen_txt_files=False):
-    x = cfg.side_margin[paper_type]
+    x = cfg.left_start[paper_type]
     paper = Image.new('RGB', cfg.paper_sizes[paper_type], (255, 255, 255))
     paper_editable = ImageDraw.Draw(paper)
 
@@ -228,7 +232,7 @@ def write_to_paper(y, in_file, out_file, paper_type='letter', gen_txt_files=Fals
                 f_lns.write('## sub ({}, {})'.format(x, start_y) + '\n')
                 f_lns.write(sb + '\n')
         if len(all_sublns[i]) == 0: start_y += 70
-        start_y += cfg.prim_vert_space
+        start_y += cfg.line_break
     
     if gen_txt_files: f_lns.close()
 

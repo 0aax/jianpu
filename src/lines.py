@@ -95,8 +95,6 @@ def add_sym_sub(primary, subln_prim, subln_sec, return_as_str=True, ending_subln
         primary_tmp = utls.arr_from_string(primary).copy()
     else: primary_tmp = primary.copy()
 
-    print(primary_tmp, '\n')
-
     len_prim, len_ns = len(primary), len(subln_prim)
     i_prim, i_tg = 0, 0
     while i_prim < len_prim:
@@ -131,8 +129,7 @@ def add_sym_sub(primary, subln_prim, subln_sec, return_as_str=True, ending_subln
             for s in p:
                 if s in cfg.sym_opp:
                     tmp += cfg.sym_factor[cfg.sym_opp[s]]
-                elif s in cfg.time_dn_opp: tmp += 2
-                else: print(s.encode('raw_unicode_escape'))
+                if s in cfg.time_dn_opp: tmp += 2
             primary_tmp[i_prim] = ' '*tmp
             i_prim += 1
 
