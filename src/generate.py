@@ -16,8 +16,8 @@ def generate_str(file, paper_type='letter'):
     measured_no_bar = comp.gen_measured_notes(comp.notes, with_bar=False)
 
     pl = get_primary(measured_w_bar)
-    notes, bars, walloc, notes_orig = gen_primary_str(pl, measured_no_bar, cfg.paper_sizes[paper_type][0])
-    
+    notes, bars, walloc, notes_orig = gen_primary_str(pl, measured_no_bar)
+
     final_prelim = []
     aln_heights = []
     all_sublns = []
@@ -34,34 +34,32 @@ def generate_str(file, paper_type='letter'):
         final = element_wise_sum(tmp, pd)
         final_prelim.append(final)
         aln_heights.append(aln_h)
-
-    print(final_prelim)
+    
     all_final, mnb_lines = combine_measures(final_prelim, measured_no_bar, bars, walloc, paper_type=paper_type)
 
-    for j, mnb in enumerate(mnb_lines):
+    for i, mnb in enumerate(mnb_lines):
         ca = chords_arranged(mnb)
-
         len_ca = len(ca)
         sublns = []
         sb_prim = ca[0]
         for j in range(1, len_ca):
             sb_j = rearrange([ca[j]], ignore_time=True)
             is_ending = j == len_ca - 1
-            sb = add_sym_sub(notes[i], sb_prim, sb_j, helper=pd, return_as_str=False, ending_subln=is_ending)
+            sb = add_sym_sub(all_final[i], sb_prim, sb_j, return_as_str=False, ending_subln=is_ending)
+            print(sb)
             sublns.append(''.join(sb))
         all_sublns.append(sublns)
-    
-    # build lines
-    # all_final = compress_spaces(all_final)
-    # print(all_final, '\n')
-    # print(all_sublns)
 
-    # all_final = [''.join(i) for i in all_final]
-    # all_sublns = [[''.join(j) for j in i] if len(i) != 0 else [] for i in all_sublns]
+    all_final = [''.join(i) for i in all_final]
 
     return all_final, all_sublns, aln_heights
 
-def combine_measures(primary, measures, bars, walloc, paper_type='letter'):
+# def get_only_notes(lns):
+#     """
+#     Given 
+#     """
+
+def combine_measures(primary, measures, bars, walloc, paper_type='letter', return_str=False):
     """
     Combines measures into lines of the target length.
     """
@@ -110,12 +108,12 @@ def combine_measures(primary, measures, bars, walloc, paper_type='letter'):
             if len(group_spaces) != 0: idx[cfg.editable_sym[curr_group]].append((curr_group, group_spaces))
         return idx
 
-    def edit_spacing(prim, edtb, to_expand):
+    def edit_spacing(prim, edtb, to_edit):
         """
         Add spaces to reach target line length.
         """
-        num_spaces_to_add = int(to_expand / cfg.space_base_width)
-        print(num_spaces_to_add)
+        edit_op = (lambda orig, mod: orig + mod) if to_edit > 0 else (lambda orig, mod: orig.replace(mod, '', 1))
+        num_spaces_to_edit = int(abs(to_edit) / cfg.space_base_width) + 2
         
         useable = [j[1] for _, i in edtb.items() for j in i if len(i) != 0]
         useable_sym = [j[0] for _, i in edtb.items() for j in i if len(i) != 0]
@@ -123,13 +121,14 @@ def combine_measures(primary, measures, bars, walloc, paper_type='letter'):
         i_use, len_use = 0, len(useable)
 
         passes = 0
-        while num_spaces_to_add > 0:
+        while num_spaces_to_edit > 0:
             curr_spaces = useable[i_use]
-            if num_spaces_to_add >= len(curr_spaces):
+            if num_spaces_to_edit >= len(curr_spaces):
                 for i, j in curr_spaces:
                     sym_tmp = useable_sym[i_use] if useable_sym[i_use] != ' ' else ''
-                    prim[i][j] += ' ' + sym_tmp
-                    num_spaces_to_add -= 1
+                    mod = ' ' + sym_tmp
+                    prim[i][j] = edit_op(prim[i][j], mod) 
+                    num_spaces_to_edit -= 1
             if i_use < len_use - 1: i_use += 1
             else: i_use = 0
             passes += 1
@@ -147,11 +146,11 @@ def combine_measures(primary, measures, bars, walloc, paper_type='letter'):
     for i, p_ln in enumerate(primary):
         add_w = walloc[i] + cfg.space_base_width*6
 
-        if len(plines) == 0: opt = 0
+        if curr_line_width == 0: opt = 0
         elif curr_line_width + add_w == target_width: opt = 1
         elif curr_line_width + add_w < target_width: opt = 2
         elif abs(curr_line_width + add_w - target_width) < abs(curr_line_width - target_width):
-            opt = 3; to_expand = curr_line_width + add_w - target_width
+            opt = 3; to_expand = target_width - (curr_line_width + add_w)
         else:
             opt = 4; to_expand = target_width - curr_line_width
 
@@ -168,26 +167,35 @@ def combine_measures(primary, measures, bars, walloc, paper_type='letter'):
             measured_lns.append([measures[i]])
             curr_line_width = add_w - cfg.space_base_width*2
 
-        # if opt == 3:
-        #     cp_plines = compress_spaces(plines[-1])
-        #     print(cp_plines)
-        #     ed_plines = editable_spaces(cp_plines)
-        #     plines[-1] = edit_spacing(cp_plines, ed_plines, to_expand)
-        #     curr_line_width = 0
+        if opt == 3:
+            cp_plines = compress_spaces(plines[-1])
+            ed_plines = editable_spaces(cp_plines)
+            plines[-1] = edit_spacing(cp_plines, ed_plines, to_expand)
         if opt == 4:
             cp_plines = compress_spaces(plines[-2])
             ed_plines = editable_spaces(cp_plines)
             plines[-2] = edit_spacing(cp_plines, ed_plines, to_expand)
     
-    i_bar = 0
-    lines_fin = []
-    for line in plines:
-        line_str = ''
-        for j, measure in enumerate(line):
-            if j == 0: line_str += ''.join(measure) + '  ' + bars[i_bar]
-            else: line_str += '  ' + ''.join(measure) + '  ' + bars[i_bar]
-            i_bar += 1
-        lines_fin.append(line_str)
+    if return_str:
+        i_bar = 0
+        lines_fin = []
+        for line in plines:
+            line_str = ''
+            for j, measure in enumerate(line):
+                if j == 0: line_str += ''.join(measure) + '  ' + bars[i_bar]
+                else: line_str += '  ' + ''.join(measure) + '  ' + bars[i_bar]
+                i_bar += 1
+            lines_fin.append(line_str)
+    else:
+        i_bar = 0
+        lines_fin = []
+        for line in plines:
+            line_str = []
+            for j, measure in enumerate(line):
+                if j == 0: line_str += measure + [' ', ' ', bars[i_bar]]
+                else: line_str += [' ', ' '] + measure + [' ', ' ', bars[i_bar]]
+                i_bar += 1
+            lines_fin.append(line_str)
 
     return lines_fin, measured_lns
 
@@ -207,7 +215,7 @@ def write_to_paper(y, in_file, out_file, paper_type='letter', gen_txt_files=Fals
     start_y = y
 
     if gen_txt_files:
-        f_lns = open('output/composition.txt', 'w')
+        f_lns = open('output/composition.txt', 'w', encoding='utf-8')
 
     for i, fln in enumerate(all_final):
         aln_h = aln_heights[i]

@@ -1,3 +1,5 @@
+import re
+
 import src.config as cfg
 import src.utils as utls
 
@@ -64,10 +66,19 @@ def add_sym(primary, notes_syms, helper=None, return_as_str=True):
     if return_as_str: return ''.join(primary_tmp), aln_height
     else: return primary_tmp, aln_height
 
-def add_sym_sub(primary, subln_prim, subln_sec, helper=None, return_as_str=True, ending_subln=False):
+def add_sym_sub(primary, subln_prim, subln_sec, return_as_str=True, ending_subln=False):
     """
     Given the string form of the primary line and an array of notes and the symbols that should be applied to them, returns a string of the notes and the symbols in the correct placement.
     """
+
+    def get_digit(s):
+        """
+        Given a string, returns the first digit occurance.
+        """
+        digit = re.search(r'\d', s)
+        if digit is None: return None
+        return digit.group()
+
     if isinstance(primary, str):
         primary_tmp = utls.arr_from_string(primary).copy()
     else: primary_tmp = primary.copy()
@@ -79,17 +90,18 @@ def add_sym_sub(primary, subln_prim, subln_sec, helper=None, return_as_str=True,
         if i_tg < len_ns:
             curr_prim, curr_tg = primary[i_prim], subln_prim[i_tg]
             dur_sym = ''
-            if helper is not None and ending_subln:
-                if cfg.dur_sym['sqvr'][2] in helper[i_prim]:
+            if ending_subln:
+                if cfg.dur_sym['sqvr'][2] in curr_prim:
                     dur_sym = cfg.dur_sym['sqvr'][2]
                     curr_helper = 2
-                elif cfg.dur_sym['qvr'][2] in helper[i_prim]:
+                elif cfg.dur_sym['qvr'][2] in curr_prim:
                     dur_sym = cfg.dur_sym['qvr'][2]
                     curr_helper = 1
                 else: curr_helper = 0
             else: curr_helper = 0
 
-            if curr_prim.isdigit() and int(curr_prim) == curr_tg:
+            curr_prim_digit = get_digit(curr_prim)
+            if curr_prim_digit is not None and int(curr_prim_digit) == curr_tg:
                 curr_subln = subln_sec[i_tg]
                 if curr_subln is None:
                     primary_tmp[i_prim] = '  '
@@ -168,11 +180,11 @@ def get_primary(measured_notes):
     prim = [[get_elems(n) for n in measure] for measure in measured_notes]
     return prim
 
-def gen_primary_str(primary, original, max_line_width):
+def gen_primary_str(primary, original):
     """
     Returns a character-by-character array of the primary line, as well as a corresponding array containing the exact width allocation.
     """
-
+    
     def get_alloc(n, in_g=False, in_d=False):
         if isinstance(n, int):
             if in_g or in_d: return str(n), cfg.note_base_width
@@ -226,6 +238,7 @@ def gen_primary_str(primary, original, max_line_width):
     for i, measure in enumerate(primary):
         measure_walloc = [get_alloc(n) for n in measure]
         notes_tmp, walloc_tmp = zip(*measure_walloc)
+
         notes_tmp = ''.join(notes_tmp)
         walloc_tmp = sum(walloc_tmp)
 
@@ -236,7 +249,7 @@ def gen_primary_str(primary, original, max_line_width):
 
         if num_space > 0:
             notes_tmp = no_bar_notes[:(-num_space)]
-            walloc_tmp -= cfg.space_base_width*(num_space)
+            walloc_tmp -= cfg.space_base_width*num_space + cfg.note_base_width
         
         notes.append(notes_tmp)
         walloc.append(walloc_tmp)
