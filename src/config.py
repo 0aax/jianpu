@@ -56,6 +56,8 @@ n_param = duration | {'group'}
 editable_spaces = {u'\u0307', u'\u0305', u'\u0306', u'\u0304', ' '}
 max_edit_passes = 4
 
+no_additional_width = {u'\u0307', u'\u0305', u'\u0306', u'\u0304', u'\u0302', u'\u0303'}
+
 sym_factor = {'bar': 2,
               'dbar': 2,
               'lebar': 2,
@@ -67,8 +69,8 @@ sym_factor = {'bar': 2,
               'qvr': 2,
               'ccht': 3,
               'mm': 4,
-
               'sbrve': 5,
+
               'sharp': 1,
               'flat': 1,
 

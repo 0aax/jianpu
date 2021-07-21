@@ -78,10 +78,24 @@ def add_sym_sub(primary, subln_prim, subln_sec, return_as_str=True, ending_subln
         digit = re.search(r'\d', s)
         if digit is None: return None
         return digit.group()
+    
+    def count_spaces(s):
+        """
+        Given string, returns the number of space characters.
+        """
+        return sum(1 for i in s if i == ' ')
+    
+    def extract_sym(s):
+        """
+        Given string, extracts symbols that have width.
+        """
+        return [i for i in s if i not in cfg.no_additional_width]
 
     if isinstance(primary, str):
         primary_tmp = utls.arr_from_string(primary).copy()
     else: primary_tmp = primary.copy()
+
+    print(primary_tmp, '\n')
 
     len_prim, len_ns = len(primary), len(subln_prim)
     i_prim, i_tg = 0, 0
@@ -112,11 +126,14 @@ def add_sym_sub(primary, subln_prim, subln_sec, return_as_str=True, ending_subln
                 updated = True
         
         if not updated:
-            p = primary[i_prim]
-            if p in cfg.sym_opp: psym = cfg.sym_opp[p]
-            elif p in cfg.time_dn_opp: psym = 'two'
-            else: psym = 'none'
-            primary_tmp[i_prim] = ' '*cfg.sym_factor[psym]
+            p = extract_sym(primary[i_prim])
+            tmp = 0
+            for s in p:
+                if s in cfg.sym_opp:
+                    tmp += cfg.sym_factor[cfg.sym_opp[s]]
+                elif s in cfg.time_dn_opp: tmp += 2
+                else: print(s.encode('raw_unicode_escape'))
+            primary_tmp[i_prim] = ' '*tmp
             i_prim += 1
 
     if return_as_str: return ''.join(primary_tmp)

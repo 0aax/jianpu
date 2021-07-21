@@ -46,18 +46,13 @@ def generate_str(file, paper_type='letter'):
             sb_j = rearrange([ca[j]], ignore_time=True)
             is_ending = j == len_ca - 1
             sb = add_sym_sub(all_final[i], sb_prim, sb_j, return_as_str=False, ending_subln=is_ending)
-            print(sb)
+            print(len(''.join(all_final[i])), len(''.join(sb)))
             sublns.append(''.join(sb))
         all_sublns.append(sublns)
 
     all_final = [''.join(i) for i in all_final]
 
     return all_final, all_sublns, aln_heights
-
-# def get_only_notes(lns):
-#     """
-#     Given 
-#     """
 
 def combine_measures(primary, measures, bars, walloc, paper_type='letter', return_str=False):
     """
