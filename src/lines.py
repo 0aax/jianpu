@@ -115,7 +115,9 @@ def add_sym_sub(primary, subln_prim, subln_sec, return_as_str=True, ending_subln
             curr_prim_digit = get_digit(curr_prim)
             if curr_prim_digit is not None and int(curr_prim_digit) == curr_tg:
                 curr_subln = subln_sec[i_tg]
-                if curr_subln is None:
+                if curr_tg == 0 and ending_subln:
+                    primary_tmp[i_prim] = '0' + dur_sym
+                elif curr_subln is None:
                     primary_tmp[i_prim] = '  '
                 else:
                     primary_tmp[i_prim] = utls.sym_to_add(curr_helper, subln_sec[i_tg])[0] + dur_sym

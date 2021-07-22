@@ -1,6 +1,6 @@
 # jianpu
 
-Temperamental program for [简谱 : jiǎnpǔ](https://en.wikipedia.org/wiki/Numbered_musical_notation) typesetting.
+Temperamental program for [简谱 : jiǎnpǔ](https://en.wikipedia.org/wiki/Numbered_musical_notation) typesetting. Please keep in mind that I only play the 柳琴 : liǔqín so this program's capabilities are mainly geared towards plucked instruments.
 
 ## 1. Composition general information
 ### 1.1 Header-related commands

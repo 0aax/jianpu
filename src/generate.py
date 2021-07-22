@@ -106,7 +106,6 @@ def combine_measures(primary, measures, bars, heights, walloc, paper_type='lette
         """
         Add spaces to reach target line length.
         """
-        print(to_edit/cfg.space_base_width)
         edit_op = (lambda orig, mod: orig + mod) if to_edit > 0 else (lambda orig, mod: orig.replace(mod, '', 1))
         num_spaces_to_edit = int(abs(to_edit) / cfg.space_base_width)
         
@@ -225,7 +224,7 @@ def write_to_paper(y, in_file, out_file, paper_type='letter', gen_txt_files=Fals
             f_lns.write(fln + '\n')
 
         for j, sb in enumerate(all_sublns[i]):
-            space = 70 if j == 0 else 60
+            space = cfg.note_base_height + 20 if j == 0 else cfg.note_base_height + 10
             start_y += space
             paper_editable.text((x, start_y), sb, fill=(0, 0, 0), font=notes_small)
             if gen_txt_files:

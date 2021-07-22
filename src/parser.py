@@ -67,6 +67,3 @@ def parse(file, is_lst=False):
     tkns = ast.literal_eval(tokenize(txt, is_lst=is_lst))
                 
     return tkns
-
-if __name__ == '__main__':
-    pass

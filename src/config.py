@@ -8,7 +8,7 @@ side_margin = {'a4': 70,
                'letter': 90}
 left_start = {'a4': 60,
               'letter': 80}
-line_break = 200
+line_break = 170
 
 header_elems = {'title', 'composer', 'instrument', 'affiliation', 'time', 'key', 'tempo'}
 types_bars = {'bar', 'dbar', 'ebar', 'lrep', 'rrep'}
