@@ -124,8 +124,8 @@ def combine_measures(primary, measures, bars, aln, bln, walloc, paper_type='lett
         useable_sym = [j[0] for _, i in edtb.items() for j in i if len(i) != 0]
 
         i_use, len_use = 0, len(useable)
+        iter_over_lst = False
 
-        passes = 0
         while num_spaces_to_edit > 0:
             curr_spaces = useable[i_use]
             if num_spaces_to_edit >= len(curr_spaces):
@@ -134,9 +134,13 @@ def combine_measures(primary, measures, bars, aln, bln, walloc, paper_type='lett
                     mod = ' ' + sym_tmp
                     prim[i][j] = edit_op(prim[i][j], mod) 
                     num_spaces_to_edit -= 1
+            elif iter_over_lst: 
+                sym_tmp = useable_sym[i_use] if useable_sym[i_use] != ' ' else ''
+                mod = ' ' + sym_tmp
+                prim[i][j] = edit_op(prim[i][j], mod) 
+                num_spaces_to_edit -= 1
             if i_use < len_use - 1: i_use += 1
-            else: i_use = 0
-            passes += 1
+            else: i_use = 0; iter_over_lst = True
 
         return prim
 
@@ -232,9 +236,11 @@ def write_to_paper(y, in_file, out_file, paper_type='letter', gen_txt_files=Fals
 
     for i, fln in enumerate(all_final):
         aln_h = aln_heights[i]*cfg.above_note_height
-        bln_h = bln_heights[i-1]*cfg.below_note_height if i > 0 else 0
-        start_y += aln_h + bln_h
+        print('aln', aln_h)
+        start_y += aln_h
+
         paper_editable.text((x, start_y), fln, fill=(0, 0, 0), font=notes)
+
         if gen_txt_files:
             f_lns.write('## primary ({}, {})'.format(x, start_y) + '\n')
             f_lns.write(fln + '\n')
@@ -242,17 +248,20 @@ def write_to_paper(y, in_file, out_file, paper_type='letter', gen_txt_files=Fals
         sub_aln_tmp = sub_aln[i]
         sub_bln_tmp = sub_bln[i]
 
+        if len(all_sublns[i]) == 0: start_y += cfg.note_base_height
+        else: start_y += cfg.sub_spacer
+
+        start_y += bln_heights[i]*cfg.below_note_height
+
         for j, sb in enumerate(all_sublns[i]):
-            if j == 0: add_space = bln_heights[i]*cfg.below_note_height + sub_aln_tmp[j]*cfg.sub_above_note_height
-            else: add_space = 0
-            # else: space = sub_aln_tmp[j]*cfg.sub_above_note_height + sub_bln_tmp[j-1]*cfg.sub_below_note_height
-            space = cfg.note_base_height
-            start_y += space
+            add_space = sub_aln_tmp[j]*cfg.sub_above_note_height
+            start_y += add_space
             paper_editable.text((x, start_y), sb, fill=(0, 0, 0), font=notes_small)
             if gen_txt_files:
                 f_lns.write('## sub ({}, {})'.format(x, start_y) + '\n')
                 f_lns.write(sb + '\n')
-        if len(all_sublns[i]) == 0: start_y += 70
+            start_y += sub_bln_tmp[j]*cfg.sub_below_note_height + cfg.sub_note_base_height
+
         start_y += cfg.line_break
     
     if gen_txt_files: f_lns.close()

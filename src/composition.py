@@ -21,13 +21,7 @@ class Composition:
         self.measured_notes = self.gen_measured_notes(self.notes)
         self.only_notes = self.gen_only_notes(self.measured_notes, grouped=False)
         self.only_dur_group = self.gen_only_dur_group(self.measured_notes)
-        self.notes_height_alloc = self.gen_notes_height_alloc(self.only_notes)
-        self.approx_notes_width_alloc = self.gen_approx_notes_width_alloc(self.only_dur_group)
-        # self.only_notes_grouped = self.gen_only_notes(self.measured_notes, grouped=True)
 
-        self.measure_heights = self.gen_measure_heights(self.notes_height_alloc)
-        self.approx_measure_widths = self.gen_approx_measure_widths(self.approx_notes_width_alloc)
-    
     def set_header_height(self, height):
         """
         Sets height of header.
@@ -177,17 +171,3 @@ class Composition:
 
         walloc = [[get_walloc(n) for n in measure] for measure in dur_group_notes]
         return walloc
-
-    def gen_measure_heights(self, heights):
-        """
-        Given array of note heights that have already been divided into measures, returns an array of the heights for each measure.
-        """
-        max_h = [max(m) for m in heights]
-        return max_h
-    
-    def gen_approx_measure_widths(self, widths):
-        """
-        Given array of note widths that have already been divided into measures, returns an array of the widths for each measure.
-        """
-        width_m = [deep_sum(m) for m in widths]
-        return width_m

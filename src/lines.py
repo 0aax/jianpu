@@ -53,8 +53,7 @@ def add_sym(primary, notes_syms, helper=None, return_as_str=True):
                     sym_tmp, aln_tmp, bln_tmp = utls.sym_to_add(curr_helper, curr_tg[0])
                     primary_tmp[i_prim] = curr_prim + sym_tmp
                     aln_height = max(aln_height, aln_tmp)
-                    dur_bln = 1 if curr_helper > 0 else 0
-                    bln_height = max(bln_height, bln_tmp + dur_bln)
+                    bln_height = max(bln_height, bln_tmp)
                     i_prim += 1
                     i_tg += 1
                     updated = True
@@ -126,10 +125,9 @@ def add_sym_sub(primary, subln_prim, subln_sec, return_as_str=True, ending_subln
                 elif isinstance(curr_subln, int): primary_tmp[i_prim] = str(curr_subln) + dur_sym
                 else:
                     sym_tmp, aln_tmp, bln_tmp = utls.sym_to_add(curr_helper, curr_subln[0])
-                    primary_tmp[i_prim] = curr_prim_digit + sym_tmp + dur_sym
+                    primary_tmp[i_prim] = str(curr_subln[1]) + sym_tmp + dur_sym
                     aln_height = max(aln_height, aln_tmp)
-                    dur_bln = 1 if curr_helper > 0 else 0
-                    bln_height = max(bln_height, bln_tmp + dur_bln)
+                    bln_height = max(bln_height, bln_tmp)
                 i_prim += 1
                 i_tg += 1
                 updated = True

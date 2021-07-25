@@ -8,13 +8,15 @@ paper_type = 'letter'
 paper = Image.new('RGB', paper_sizes[paper_type], (255, 255, 255))
 paper_editable = ImageDraw.Draw(paper)
 
-NotoSerif_reg = ImageFont.truetype("assets/NotoSansCJKsc-Bold.otf", 50)
+notes = ImageFont.truetype('assets/jianpu2.otf', 55)
+notes_small = ImageFont.truetype('assets/jianpu2_small.otf', 55)
 
 # notes = ImageFont.truetype("assets/jianpu.otf", 55)
 # notes_small = ImageFont.truetype("assets/jianpu_small.otf", 55)
-txt = '一二三四'
-print(txt.encode('raw_unicode_escape'))
-paper_editable.text((70, 100), txt, fill=(0, 0, 0), font=NotoSerif_reg)
+txt = '                                    3'
+print((len(txt)-1)*15)
+paper_editable.text((0, 0), txt, fill=(0, 0, 0), font=notes)
+paper_editable.text(((len(txt)-1)*15, 70), '3', fill=(0, 0, 0), font=notes_small)
 # x, y = 150, 150
 # paper_editable.text((x, y), '\\   /   \\  \\  /     \\    \\             \\ / \\ /   \\     \\  /   \\  \\  /     \\    \\             \\ / \\ /   \\', fill=(0, 0, 0), font=notes)
 # paper_editable.text((x, y), '\'                                            \' \' \' \'   \'', fill=(0, 0, 0), font=notes)
@@ -37,4 +39,4 @@ paper_editable.text((70, 100), txt, fill=(0, 0, 0), font=NotoSerif_reg)
 # paper_editable.text((x-45, y+80+50+80), '|                                                                                                                                                         |', fill=(0, 0, 0), font=notes)
 # print(len('|                                                                                                                                                        |'))
 cwd = os.getcwd()
-paper.save(os.path.join(cwd, 'tester_paper.png'), 'PNG')
+paper.save(os.path.join(cwd, 'output/tester_paper.png'), 'PNG')
