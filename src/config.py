@@ -8,7 +8,7 @@ side_margin = {'a4': 70,
                'letter': 90}
 left_start = {'a4': 60,
               'letter': 80}
-line_break = 170
+line_break = 0
 
 header_elems = {'title', 'composer', 'instrument', 'affiliation', 'time', 'key', 'tempo'}
 types_bars = {'bar', 'dbar', 'ebar', 'lrep', 'rrep'}
@@ -22,7 +22,13 @@ note_base_width = 30
 space_base_width = int(30/2)
 
 note_base_height = 50
+note_base_height = 50
+
 above_note_height = 20
+below_note_height = 20
+
+sub_above_note_height = 10
+sub_below_note_height = 10
 
 notes_space = {'sqvr': space_base_width*1,
                'qvr': space_base_width*2,
@@ -87,7 +93,7 @@ sym_factor = {'bar': 2,
               'one': 1,
               'two': 2}
 
-hgt_factor = {'down': 2,
+aln_factor = {'down': 2,
               'up': 2,
               
               'stie': 4,
@@ -97,6 +103,8 @@ hgt_factor = {'down': 2,
               'eslur': 4,
               
               'trem': 2}
+
+bln_factor = {}
 
 sym = {'bar': '|',
        'lebar': '[',

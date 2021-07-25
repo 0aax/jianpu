@@ -30,18 +30,18 @@ def combine_arrays(arr):
     return returns
 
 def sym_to_add(h, sym):
-    if isinstance(sym, int): return str(sym)
-    
-    to_add = str(sym[1])
-    height = 0
-    for s in sym[0]:
+    to_add = ''
+    aln, bln = 0, 0
+    for s in sym:
         if s in cfg.ignore_syms: tmp = ''
         elif isinstance(s, str):
             tmp = cfg.sym[s]
-            if s in cfg.hgt_factor: height = max(height, cfg.hgt_factor[s])
+            if s in cfg.aln_factor: aln = max(aln, cfg.aln_factor[s])
+            if s in cfg.bln_factor: bln = max(bln, cfg.bln_factor[s])
         elif s[0] == 'oct':
             tmp = cfg.oct_sym[s[1]][h]
-            if s[1] > 0: height = max(height, 1)
+            if s[1] > 0: aln = max(aln, 1)
+            if s[1] < 0: bln = max(bln, 1)
         else: raise NotImplementedError("The symbol {} is not supported".format(s))
         to_add += tmp
-    return to_add, height*cfg.above_note_height
+    return to_add, aln, bln

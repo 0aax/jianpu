@@ -38,7 +38,7 @@ def add_sym(primary, notes_syms, helper=None, return_as_str=True):
 
     len_prim, len_ns = len(primary), len(notes_syms)
     i_prim, i_tg = 0, 0
-    aln_height = 0
+    aln_height, bln_height = 0, 0
     while i_prim < len_prim:
         updated = False
         if i_tg < len_ns:
@@ -50,8 +50,11 @@ def add_sym(primary, notes_syms, helper=None, return_as_str=True):
             else: curr_helper = 0
             if curr_prim.isdigit():
                 if isinstance(curr_tg, list) and int(curr_prim) == curr_tg[1]:
-                    primary_tmp[i_prim], h_tmp = utls.sym_to_add(curr_helper, curr_tg)
-                    aln_height = max(aln_height, h_tmp)
+                    sym_tmp, aln_tmp, bln_tmp = utls.sym_to_add(curr_helper, curr_tg[0])
+                    primary_tmp[i_prim] = curr_prim + sym_tmp
+                    aln_height = max(aln_height, aln_tmp)
+                    dur_bln = 1 if curr_helper > 0 else 0
+                    bln_height = max(bln_height, bln_tmp + dur_bln)
                     i_prim += 1
                     i_tg += 1
                     updated = True
@@ -59,12 +62,12 @@ def add_sym(primary, notes_syms, helper=None, return_as_str=True):
                     i_prim += 1
                     i_tg += 1
                     updated = True
-
+            
         if not updated:
             i_prim += 1
 
-    if return_as_str: return ''.join(primary_tmp), aln_height
-    else: return primary_tmp, aln_height
+    if return_as_str: return ''.join(primary_tmp), aln_height, bln_height
+    else: return primary_tmp, aln_height, bln_height
 
 def add_sym_sub(primary, subln_prim, subln_sec, return_as_str=True, ending_subln=False):
     """
@@ -97,6 +100,7 @@ def add_sym_sub(primary, subln_prim, subln_sec, return_as_str=True, ending_subln
 
     len_prim, len_ns = len(primary), len(subln_prim)
     i_prim, i_tg = 0, 0
+    aln_height, bln_height = 0, 0
     while i_prim < len_prim:
         updated = False
         if i_tg < len_ns:
@@ -119,8 +123,13 @@ def add_sym_sub(primary, subln_prim, subln_sec, return_as_str=True, ending_subln
                     primary_tmp[i_prim] = '0' + dur_sym
                 elif curr_subln is None:
                     primary_tmp[i_prim] = '  '
+                elif isinstance(curr_subln, int): primary_tmp[i_prim] = str(curr_subln) + dur_sym
                 else:
-                    primary_tmp[i_prim] = utls.sym_to_add(curr_helper, subln_sec[i_tg])[0] + dur_sym
+                    sym_tmp, aln_tmp, bln_tmp = utls.sym_to_add(curr_helper, curr_subln[0])
+                    primary_tmp[i_prim] = curr_prim_digit + sym_tmp + dur_sym
+                    aln_height = max(aln_height, aln_tmp)
+                    dur_bln = 1 if curr_helper > 0 else 0
+                    bln_height = max(bln_height, bln_tmp + dur_bln)
                 i_prim += 1
                 i_tg += 1
                 updated = True
@@ -135,8 +144,8 @@ def add_sym_sub(primary, subln_prim, subln_sec, return_as_str=True, ending_subln
             primary_tmp[i_prim] = ' '*tmp
             i_prim += 1
 
-    if return_as_str: return ''.join(primary_tmp)
-    else: return primary_tmp
+    if return_as_str: return ''.join(primary_tmp), aln_height, bln_height
+    else: return primary_tmp, aln_height, bln_height
 
 def chords_arranged(measured_notes):
     """

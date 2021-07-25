@@ -20,7 +20,7 @@ def generate_str(file, paper_type='letter'):
 
     final_prelim = []
     aln_heights = []
-    all_sublns = []
+    bln_heights = []
 
     for i, mnb in enumerate(notes_orig):
         mnb = [mnb]
@@ -30,30 +30,41 @@ def generate_str(file, paper_type='letter'):
         dg = get_dur_group(mnb)
         pd = match_prim_dur(notes_lst, dg)
 
-        tmp, aln_h = add_sym(notes[i], rr, helper=pd, return_as_str=False)
+        tmp, aln_h, bln_h = add_sym(notes[i], rr, helper=pd, return_as_str=False)
         final = element_wise_sum(tmp, pd)
         final_prelim.append(final)
         aln_heights.append(aln_h)
+        bln_heights.append(bln_h)
     
-    all_final, mnb_lines, aln_heights = combine_measures(final_prelim, measured_no_bar, bars, aln_heights, walloc, paper_type=paper_type)
+    all_final, mnb_lines, aln_heights, bln_heights = combine_measures(final_prelim, measured_no_bar, bars, aln_heights, bln_heights, walloc, paper_type=paper_type)
+
+    all_sublns = []
+    sub_aln = []
+    sub_bln = []
 
     for i, mnb in enumerate(mnb_lines):
         ca = chords_arranged(mnb)
         len_ca = len(ca)
         sublns = []
+        aln_tmp = []
+        bln_tmp = []
         sb_prim = ca[0]
         for j in range(1, len_ca):
             sb_j = rearrange([ca[j]], ignore_time=True)
             is_ending = j == len_ca - 1
-            sb = add_sym_sub(all_final[i], sb_prim, sb_j, return_as_str=False, ending_subln=is_ending)
+            sb, aln, bln = add_sym_sub(all_final[i], sb_prim, sb_j, return_as_str=False, ending_subln=is_ending)
             sublns.append(''.join(sb))
+            aln_tmp.append(aln)
+            bln_tmp.append(bln)
         all_sublns.append(sublns)
+        sub_aln.append(aln_tmp)
+        sub_bln.append(bln_tmp)
 
     all_final = [''.join(i) for i in all_final]
 
-    return all_final, all_sublns, aln_heights
+    return all_final, all_sublns, aln_heights, bln_heights, sub_aln, sub_bln
 
-def combine_measures(primary, measures, bars, heights, walloc, paper_type='letter', return_str=False):
+def combine_measures(primary, measures, bars, aln, bln, walloc, paper_type='letter', return_str=False):
     """
     Combines measures into lines of the target length.
     """
@@ -136,7 +147,8 @@ def combine_measures(primary, measures, bars, heights, walloc, paper_type='lette
 
     plines = []
     measured_lns = []
-    measured_heights = []
+    measured_aln = []
+    measured_bln = []
 
     for i, p_ln in enumerate(primary):
         add_w = walloc[i] + cfg.space_base_width*6
@@ -152,17 +164,20 @@ def combine_measures(primary, measures, bars, heights, walloc, paper_type='lette
         if opt in {1, 2}:
             plines[-1] += [p_ln]
             measured_lns[-1] += [measures[i]]
-            measured_heights[-1] = max(measured_heights[-1], heights[i])
+            measured_aln[-1] = max(measured_aln[-1], aln[i])
+            measured_bln[-1] = max(measured_bln[-1], bln[i])
             curr_line_width += add_w
         elif opt == 3:
             plines[-1] += [p_ln]
             measured_lns[-1] += [measures[i]]
-            measured_heights.append(heights[i])
+            measured_aln[-1] = max(measured_aln[-1], aln[i])
+            measured_bln[-1] = max(measured_bln[-1], bln[i])
             curr_line_width = 0
         else:
             plines.append([p_ln])
             measured_lns.append([measures[i]])
-            measured_heights.append(heights[i])
+            measured_aln.append(aln[i])
+            measured_bln.append(bln[i])
             curr_line_width = add_w - cfg.space_base_width*2
 
         if opt == 3:
@@ -195,7 +210,7 @@ def combine_measures(primary, measures, bars, heights, walloc, paper_type='lette
                 i_bar += 1
             lines_fin.append(line_str)
 
-    return lines_fin, measured_lns, measured_heights
+    return lines_fin, measured_lns, measured_aln, measured_bln
 
 def write_to_paper(y, in_file, out_file, paper_type='letter', gen_txt_files=False):
     x = cfg.left_start[paper_type]
@@ -208,7 +223,7 @@ def write_to_paper(y, in_file, out_file, paper_type='letter', gen_txt_files=Fals
     notes = ImageFont.truetype('assets/jianpu2.otf', 55)
     notes_small = ImageFont.truetype('assets/jianpu2_small.otf', 55)
 
-    all_final, all_sublns, aln_heights = generate_str(in_file, paper_type=paper_type)
+    all_final, all_sublns, aln_heights, bln_heights, sub_aln, sub_bln = generate_str(in_file, paper_type=paper_type)
 
     start_y = y
 
@@ -216,15 +231,22 @@ def write_to_paper(y, in_file, out_file, paper_type='letter', gen_txt_files=Fals
         f_lns = open('output/composition.txt', 'w', encoding='utf-8')
 
     for i, fln in enumerate(all_final):
-        aln_h = aln_heights[i]
-        start_y += aln_h
+        aln_h = aln_heights[i]*cfg.above_note_height
+        bln_h = bln_heights[i-1]*cfg.below_note_height if i > 0 else 0
+        start_y += aln_h + bln_h
         paper_editable.text((x, start_y), fln, fill=(0, 0, 0), font=notes)
         if gen_txt_files:
             f_lns.write('## primary ({}, {})'.format(x, start_y) + '\n')
             f_lns.write(fln + '\n')
 
+        sub_aln_tmp = sub_aln[i]
+        sub_bln_tmp = sub_bln[i]
+
         for j, sb in enumerate(all_sublns[i]):
-            space = cfg.note_base_height + 20 if j == 0 else cfg.note_base_height + 10
+            if j == 0: add_space = bln_heights[i]*cfg.below_note_height + sub_aln_tmp[j]*cfg.sub_above_note_height
+            else: add_space = 0
+            # else: space = sub_aln_tmp[j]*cfg.sub_above_note_height + sub_bln_tmp[j-1]*cfg.sub_below_note_height
+            space = cfg.note_base_height
             start_y += space
             paper_editable.text((x, start_y), sb, fill=(0, 0, 0), font=notes_small)
             if gen_txt_files:
