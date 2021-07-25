@@ -1,5 +1,5 @@
 \time{2, 4} \group{\qvr{\dot{\down{\chord{\oct{2, 1}, 1, \oct{1, -1}}}}}, \sqvr{1}} \group{\qvr{2}, \sqvr{5, 6}} \bar
-3 \group{\qvr{3}, \sqvr{5, 6}} 3 3\bar
+3 \group{\qvr{3}, \sqvr{5, 6}}\bar
 \sqvr{\down{\oct{3, -1}}, \up{\oct{5, 1}}, \down{\oct{3, 1}}, \up{\oct{2, 1}}} \down{\oct{3, 1}} \bar
 \sqvr{\down{\oct{3, -1}}, \up{\oct{5, 1}}, \down{\oct{3, 1}}, \up{\oct{2, 1}}} \down{\oct{3, 1}} \bar
 \group{\qvr{\dot{\down{1}}}, \sqvr{\up{1}}} \group{\qvr{\down{2}}, \sqvr{\down{5}, \up{6}}} \bar
