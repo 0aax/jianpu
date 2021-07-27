@@ -4,7 +4,13 @@
 \group{\qvr{\chord{\oct{2, 2}, 5, 2, \oct{5, -1}}}, \sqvr{\oct{2, 2}, \oct{3, 2}}} \qvr{\oct{2, 1}, 7} \bar
 \sqvr{\down{\oct{6, 1}}, \up{\oct{7, 1}}, \down{\oct{6, 1}}, \up{\oct{5, 1}}} \oct{6, 1} \bar
 \qvr{0} \chord{\oct{1, 2}, 5, 2, \oct{5, -1}} \qvr{\down{\oct{2, 2}}} \bar
-\sqvr{\down{\oct{3, 2}}, \up{\oct{5, 2}}, \down{\oct{3, 2}}, \up{\oct{5, 2}}} \qvr{\down{\oct{3, 2}}, \up{\oct{2, 2}}} \bar
+\sqvr{\down{\oct{3, 2}}, \up{\oct{5, 2}}, \down{\oct{3, 2}}, \up{\oct{5, 2}}} \qvr{\down{\oct{3, 2}}, \down{\oct{2, 2}}} \bar
+\group{\qvr{\dot{\oct{7, 1}}}, \sqvr{\up{\oct{2, 2}}}} \qvr{\down{\oct{7, 1}}, \down{\oct{6, 1}}} \bar
+\sqvr{\down{\oct{5, 1}}, \up{\oct{6, 1}}, \down{\oct{7, 1}}, \up{\oct{6, 1}}} \down{\oct{5, 1}} \bar
+\group{\qvr{\down{5}}, \sqvr{\down{\oct{2, 1}}, \up{\oct{2, 1}}}} \qvr{\down{\oct{5, 1}}, \down{\oct{2, 1}}} \bar
+\group{\qvr{2}, \sqvr{\oct{2, 1}, \oct{2, 1}}} \qvr{\oct{5, 1}, \oct{2, 1}} \bar
+\group{\qvr{\oct{5, -1}}, \sqvr{\oct{5, 1}, \oct{5, 1}}} \qvr{\oct{5, 1}, \oct{2, 1}} \bar
+\sqvr{\down{\oct{3, 1}}, \up{\oct{5, 1}}, \down{\oct{3, 1}}, \up{\oct{2, 1}}} \down{\oct{3, 1}} \bar
 \group{\qvr{5}, \sqvr{\oct{2, 1}, \oct{2, 1}}} \qvr{\oct{5, 1}, \oct{2, 1}} \bar
 \group{\qvr{2}, \sqvr{\oct{2, 1}, \oct{2, 1}}} \qvr{\oct{5, 1}, \oct{2, 1}} \bar
 \group{\qvr{\oct{5, -1}}, \sqvr{\oct{5, 1}, \oct{5, 1}}} \qvr{\oct{5, 1}, \oct{2, 1}} \bar

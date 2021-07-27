@@ -28,7 +28,7 @@ sub_note_base_height = 40
 above_note_height = 15
 below_note_height = 15
 
-sub_above_note_height = 10
+sub_above_note_height = 15
 sub_below_note_height = 15 
 
 notes_space = {'sqvr': space_base_width*1,
