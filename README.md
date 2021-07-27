@@ -2,6 +2,10 @@
 
 Temperamental program for [简谱 : jiǎnpǔ](https://en.wikipedia.org/wiki/Numbered_musical_notation) typesetting. Please keep in mind that I only play the 柳琴 : liǔqín so this program's capabilities are mainly geared towards plucked instruments.
 
+## Todos
+[] Change direction symbol if used with a chord.
+[] Render characters individually to mitigate cross-platform kerning and tracking differences.
+
 ## 1. Composition general information
 ### 1.1 Header-related commands
 ```
@@ -42,13 +46,7 @@ X: Percussion (or placeholder for rhythms without pitch)
 \oct{1, 2}: Raised octave, in example note 1 is raised 2 octaves.
 \oct{1, -2}: Lowered octave, in example note 1 is lowered 2 octaves.
 ```
-### 2.3 Accidentals
-```
-\sharp{1}: Sharp
-\flat{1}: Flat
-\natural{1}: Natural
-```
-### 2.4 Duration
+### 2.3 Duration
 ```
 (1)
 
@@ -76,7 +74,7 @@ To group notes of different durations, use `\group{...}`.
 ```
 \group{\qvr{1}, \sqvr{1, 2}}
 ```
-### 2.5 Extensions
+### 2.4 Extensions
 The notes starting and ending a tie should be consecutive.
 ```
 \stie{1}, \etie{1}: Tie, where \stie starts and \etie ends the tie
@@ -85,7 +83,7 @@ Slur placement is determined by the start and end notes. The curve itself will e
 ```
 \sslur{1}, \eslur{4}: Slur, in example the slur starts at 1 and ends at 4.
 ```
-### 2.6 Dynamics
+### 2.5 Dynamics
 ```
 \p{1}: Piano associated with note 1.
 \mp{1}: Mezzo-piano ____''____
@@ -97,13 +95,13 @@ The placement of dynamic changes are determined by their start and end notes.
 \scresc{1}, \ecresc{4}: Crescendo, in example crescendo starts at 1 and ends at 4.
 \sdim{4}, \edim{1}: Diminuendo/Decrescendo, didn't differentiate between the two :)
 ```
-### 2.7 Additional modifiers
+### 2.6 Additional modifiers
 ```
 \grace{1}: Grace note
 \chord{1, 2}, \chord{1, 2, 3}, etc.: Chords where each note is separated by a comma.
 \trem{1}: Tremolo on note 1.
 ```
-### 2.8 Miscellaneous notation
+### 2.7 Miscellaneous notation
 Fingering instructions will appear on the upper left corner of the note.
 ```
 \fing{1, 2}: Fingering instructions. Example shown represents using finger 2 for note 1.
