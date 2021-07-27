@@ -35,10 +35,10 @@ def sym_to_add(h, sym):
     """
     to_add = ''
     aln = 0
-    bln = h
+    bln = h*cfg.dur_bln_factor
     for s in sym:
         if s in cfg.ignore_syms: tmp = ''
-        elif isinstance(s, str):
+        elif isinstance(s, str) and s != '-':
             tmp = cfg.sym[s]
             if s in cfg.aln_factor: aln += cfg.aln_factor[s]
             if s in cfg.bln_factor: bln += cfg.bln_factor[s]

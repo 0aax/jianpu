@@ -1,5 +1,5 @@
 from src.composition import Composition
-from src.parser import parse
+from src.parse import parse
 from src.lines import get_primary, gen_primary_str, rearrange, add_sym, get_dur_group, match_prim_dur, chords_arranged, add_sym_sub
 from src.utils import element_wise_sum, arr_from_string
 
@@ -64,29 +64,29 @@ def generate_str(file, paper_type='letter'):
 
     return all_final, all_sublns, aln_heights, bln_heights, sub_aln, sub_bln
 
+def compress_spaces(msrs):
+    """
+    Compresses editable spaces into one element in the array. The input array should be an array of arrays.
+    """
+    comp = []
+    for _, msr in enumerate(msrs):
+        cp_tmp = []
+        curr_comp, num_comp = '', 0
+        for _, n in enumerate(msr):
+            n_set = set(n)
+            if n_set.issubset(cfg.editable_spaces): curr_comp += n; num_comp += 1
+            elif curr_comp != '':
+                cp_tmp += [curr_comp, n]
+                curr_comp, num_comp = '', 0
+            else:
+                cp_tmp.append(n)
+        comp.append(cp_tmp)
+    return comp
+
 def combine_measures(primary, measures, bars, aln, bln, walloc, paper_type='letter', return_str=False):
     """
     Combines measures into lines of the target length.
     """
-
-    def compress_spaces(msrs):
-        """
-        Compresses editable spaces into one element in the array.
-        """
-        comp = []
-        for _, msr in enumerate(msrs):
-            cp_tmp = []
-            curr_comp, num_comp = '', 0
-            for _, n in enumerate(msr):
-                n_set = set(v for v in n)
-                if n_set.issubset(cfg.editable_spaces): curr_comp += n; num_comp += 1
-                elif curr_comp != '':
-                    cp_tmp += [curr_comp, n]
-                    curr_comp, num_comp = '', 0
-                else:
-                    cp_tmp.append(n)
-            comp.append(cp_tmp)
-        return comp
 
     def editable_spaces(cpmsrs):
         """
@@ -134,7 +134,7 @@ def combine_measures(primary, measures, bars, aln, bln, walloc, paper_type='lett
                     mod = ' ' + sym_tmp
                     prim[i][j] = edit_op(prim[i][j], mod) 
                     num_spaces_to_edit -= 1
-            elif iter_over_lst: 
+            elif iter_over_lst:
                 sym_tmp = useable_sym[i_use] if useable_sym[i_use] != ' ' else ''
                 mod = ' ' + sym_tmp
                 prim[i][j] = edit_op(prim[i][j], mod) 
@@ -236,7 +236,6 @@ def write_to_paper(y, in_file, out_file, paper_type='letter', gen_txt_files=Fals
 
     for i, fln in enumerate(all_final):
         aln_h = aln_heights[i]*cfg.above_note_height
-        print('aln', aln_h)
         start_y += aln_h
 
         paper_editable.text((x, start_y), fln, fill=(0, 0, 0), font=notes)
@@ -248,15 +247,24 @@ def write_to_paper(y, in_file, out_file, paper_type='letter', gen_txt_files=Fals
         sub_aln_tmp = sub_aln[i]
         sub_bln_tmp = sub_bln[i]
 
-        if len(all_sublns[i]) == 0: start_y += cfg.note_base_height
+        sublns_curr = all_sublns[i]
+
+        if len(sublns_curr) == 0: start_y += cfg.note_base_height
         else: start_y += cfg.sub_spacer
 
         start_y += bln_heights[i]*cfg.below_note_height
 
-        for j, sb in enumerate(all_sublns[i]):
+        for j, sb in enumerate(sublns_curr):
             add_space = sub_aln_tmp[j]*cfg.sub_above_note_height
             start_y += add_space
+
             paper_editable.text((x, start_y), sb, fill=(0, 0, 0), font=notes_small)
+
+            # print('sb', j, sb)
+            # for k, n in enumerate(sb):
+            #     if set(n) == {' '}: subln_x += len(n)*cfg.space_base_width
+            #     else: paper_editable.text((subln_x, start_y), n, fill=(0, 0, 0), font=notes_small)
+
             if gen_txt_files:
                 f_lns.write('## sub ({}, {})'.format(x, start_y) + '\n')
                 f_lns.write(sb + '\n')

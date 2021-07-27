@@ -10,6 +10,7 @@ left_start = {'a4': 60,
               'letter': 80}
 line_break = 100
 
+always_str = {'title', 'instrument', 'composer', 'affiliation', 'key'}
 header_elems = {'title', 'composer', 'instrument', 'affiliation', 'time', 'key', 'tempo'}
 types_bars = {'bar', 'dbar', 'ebar', 'lrep', 'rrep'}
 
@@ -106,6 +107,7 @@ aln_factor = {'down': 1,
               'trem': 1}
 
 bln_factor = {}
+dur_bln_factor = 0.7
 
 sym = {'bar': '|',
        'lebar': '[',

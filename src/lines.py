@@ -6,7 +6,7 @@ import src.utils as utls
 def rearrange(measured_notes, ignore_time=True):
 
     def rr_note(n, ops=tuple()):
-        if isinstance(n, int) or n is None:
+        if isinstance(n, int) or n == '-' or n is None:
             if len(ops) == 0: return [n]
             else: return [[list(ops), n]]
         elif n[0] in cfg.one_param: return rr_note(n[1], ops + (n[0],))
@@ -48,7 +48,7 @@ def add_sym(primary, notes_syms, helper=None, return_as_str=True):
                 elif cfg.dur_sym['qvr'][2] in helper[i_prim]: curr_helper = 1
                 else: curr_helper = 0
             else: curr_helper = 0
-            if curr_prim.isdigit():
+            if curr_prim.isdigit() or curr_prim == '-':
                 if isinstance(curr_tg, list) and int(curr_prim) == curr_tg[1]:
                     sym_tmp, aln_tmp, bln_tmp = utls.sym_to_add(curr_helper, curr_tg[0])
                     primary_tmp[i_prim] = curr_prim + sym_tmp
@@ -57,7 +57,7 @@ def add_sym(primary, notes_syms, helper=None, return_as_str=True):
                     i_prim += 1
                     i_tg += 1
                     updated = True
-                elif int(curr_prim) == curr_tg:
+                elif curr_prim == curr_tg or int(curr_prim) == curr_tg:
                     i_prim += 1
                     i_tg += 1
                     updated = True
@@ -70,7 +70,7 @@ def add_sym(primary, notes_syms, helper=None, return_as_str=True):
 
 def add_sym_sub(primary, subln_prim, subln_sec, return_as_str=True, ending_subln=False):
     """
-    Given the string form of the primary line and an array of notes and the symbols that should be applied to them, returns a string of the notes and the symbols in the correct placement.
+    Given the string form of the primary line and an array of notes and the symbols that should be applied to them, returns a string of the notes and the symbols in their correct placement.
     """
 
     def get_digit(s):
@@ -116,7 +116,7 @@ def add_sym_sub(primary, subln_prim, subln_sec, return_as_str=True, ending_subln
             else: curr_helper = 0
 
             curr_prim_digit = get_digit(curr_prim)
-            if curr_prim_digit is not None and int(curr_prim_digit) == curr_tg:
+            if curr_prim_digit is not None and (curr_prim == curr_tg or int(curr_prim_digit) == curr_tg):
                 curr_subln = subln_sec[i_tg]
                 if curr_tg == 0 and ending_subln:
                     primary_tmp[i_prim] = '0' + dur_sym
@@ -151,7 +151,7 @@ def chords_arranged(measured_notes):
     """
 
     def get_chord(n):
-        if isinstance(n, int): return [n]
+        if isinstance(n, int) or n == '-': return [n]
         elif n[0] == 'chord': return [n[1:]]
         elif n[0] in cfg.n_param:
             ch_tmp = []
@@ -165,8 +165,9 @@ def chords_arranged(measured_notes):
         ds = [[0]*len_line for _ in range(num_lines)]
 
         for i, c in enumerate(ch):
-            if isinstance(c, int): pop_tmp = [c] + [None]*(num_lines-1)
-            else: pop_tmp = c + [None]*(num_lines - len(c))
+            if isinstance(c, int) or c == '-': pop_tmp = [c] + [None]*(num_lines-1)
+            else:
+                pop_tmp = c + [None]*(num_lines - len(c))
             for j, pt in enumerate(pop_tmp): ds[j][i] = pt
         
         return ds
@@ -179,7 +180,7 @@ def chords_arranged(measured_notes):
         chords += ch_measure
     
     sl = sublines(chords)
-    sl[0] = [n if isinstance(n, int) else n[1] for n in sl[0]]
+    sl[0] = [n if isinstance(n, int) or n == '-' else n[1] for n in sl[0]]
 
     return sl
 
@@ -189,7 +190,7 @@ def get_primary(measured_notes):
     """
 
     def get_elems(n):
-        if isinstance(n, int): return n
+        if isinstance(n, int) or n == '-': return n
         elif n[0] in cfg.no_param_elems_prim: return n
         elif n[0] in cfg.one_param_elems_prim: return [n[0], get_elems(n[1])]
         elif n[0] in cfg.two_param_elems_prim: return [n[0], get_elems(n[1]), n[2]]
@@ -212,6 +213,7 @@ def gen_primary_str(primary, original):
         if isinstance(n, int):
             if in_g or in_d: return str(n), cfg.note_base_width
             else: return str(n) + ' '*cfg.sym_factor['ccht'], cfg.note_base_width + cfg.space_base_width*cfg.sym_factor['ccht']
+        elif n == '-': return n + ' '*cfg.sym_factor['ccht'], cfg.note_base_width + cfg.space_base_width*cfg.sym_factor['ccht']
         elif n[0] == 'time': return cfg.time_dn[n[2]] + cfg.time_up[n[1]] + '  ', cfg.note_base_width + cfg.space_base_width*2
         elif n[0] in cfg.types_bars: return cfg.sym[n[0]], cfg.sym_factor[n[0]]*cfg.space_base_width
         elif n[0] in cfg.one_param_elems_prim_back:
@@ -286,7 +288,7 @@ def get_dur_group(measured_notes):
     """
     
     def get_dur_group(n):
-        if isinstance(n, int): return n
+        if isinstance(n, int) or n == '-': return n
         elif n[0] == 'group':
             group_tmp = []
             for e in n[1:]: group_tmp += get_dur_group(e)

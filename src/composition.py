@@ -18,10 +18,6 @@ class Composition:
         self.line_height = 0
         self.num_lines = 0
 
-        self.measured_notes = self.gen_measured_notes(self.notes)
-        self.only_notes = self.gen_only_notes(self.measured_notes, grouped=False)
-        self.only_dur_group = self.gen_only_dur_group(self.measured_notes)
-
     def set_header_height(self, height):
         """
         Sets height of header.
@@ -75,7 +71,7 @@ class Composition:
         measured_notes = []
         curr_bar = []
         for n in notes:
-            if isinstance(n, int): curr_bar.append(n)
+            if isinstance(n, int) or n == '-': curr_bar.append(n)
             elif n[0] in cfg.types_bars:
                 if with_bar: measured_notes.append(curr_bar + [n])
                 else: measured_notes.append(curr_bar)

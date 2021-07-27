@@ -22,4 +22,4 @@
 \sqvr{\down{\oct{1, 2}}, \up{\oct{2, 2}}, \down{\oct{1, 2}}, \up{\oct{2, 2}}} \sqvr{\oct{3, 2}, \oct{2, 2}, \oct{3, 2}, \oct{5, 2}} \bar
 \sqvr{\oct{2, 2}, \oct{3, 2}, \oct{5, 2}, \oct{3, 2}} \sqvr{\oct{2, 2}, \oct{3, 2}, \oct{2, 2}, \oct{1, 2}} \bar
 \sqvr{\oct{6, 1}, \oct{7, 1}, \oct{5, 1}, \oct{6, 1}} \sqvr{\oct{7, 1}, \oct{2, 2}, \oct{7, 1}, \oct{6, 1}} \bar
-\qvr{\down{\oct{5, 1}}, \up{\oct{2, 1}}} \down{\oct{5, 1}} \bar
+\qvr{\down{\oct{5, 1}}, \up{\oct{2, 1}}} \down{\oct{5, 1}} \bar 2 - - - \bar

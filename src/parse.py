@@ -1,14 +1,14 @@
 import ast
 import re
 
+import src.config as cfg
+
 def tokenize(txt, is_lst=False):
     """
     Given text of notes and 'operators', returns a string that can be evaluated easily.
     - is_lst=True, (e.g str([flat 1] 2 [trem 2]) --> '[["flat", 1], 2, ["trem", 4]]')
     - is_lst=False, (e.g str(\\flat{1} 2 \\trem{2}) --> '[["flat", 1], 2, ["trem", 4]]')
     """
-    bars = {'bar', 'dbar', 'ebar', 'lrep', 'rrep'}
-    always_str = {'title', 'instrument', 'composer', 'affiliation', 'key'}
 
     def to_lst(txt):
         """
@@ -16,7 +16,7 @@ def tokenize(txt, is_lst=False):
         """
         lst = re.sub('\\\\([a-zA-Z]+){', r'[\1 ', txt)
         lst = lst.replace('}', ']')
-        for b in bars: lst = lst.replace('\\{}'.format(b), '[{}]'.format(b))
+        for b in cfg.types_bars: lst = lst.replace('\\{}'.format(b), '[{}]'.format(b))
         return lst
 
     def clean(txt):
@@ -37,7 +37,8 @@ def tokenize(txt, is_lst=False):
         tmp = re.sub('\]\s([0-9])', r'], \1', tmp)      # ] note --> ], note
         tmp = re.sub('([0-9])\s\[', r'\1, [', tmp)      # note [ --> note, [
         tmp = re.sub('\]\s\[', r'], [', tmp)            # ] [ --> ], [
-        fin = re.sub('([0-9])\s', r'\1, ', tmp)         # note --> note,
+        tmp = re.sub('([0-9])\s', r'\1, ', tmp)         # note --> note,
+        fin = re.sub('([-])[^0-9]', r'\1, ', tmp)       # - --> -,
         return fin
 
     def fix_strings(txt):
@@ -45,8 +46,9 @@ def tokenize(txt, is_lst=False):
         Helper function to make sure that strings will be evaluated as strings.
         """
         tmp = re.sub('\[([a-zA-Z]+),', r'["\1",', txt)   # [op, --> ['op',
-        for s in always_str:
+        for s in cfg.always_str:
             tmp = re.sub('\["{}", (.*?)\]'.format(s), r'["{}", "\1"]'.format(s), tmp)
+        tmp = re.sub('([-]),', r'"\1",', tmp)             # - --> '-'
         fin = re.sub('\[([a-zA-Z]+)\]', r'["\1"]', tmp)  # [op] --> ['op']
         return fin
 
