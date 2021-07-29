@@ -1,8 +1,11 @@
 # jianpu
 
-Temperamental program for [简谱 : jiǎnpǔ](https://en.wikipedia.org/wiki/Numbered_musical_notation) typesetting. Please keep in mind that I only play the 柳琴 : liǔqín so this program's capabilities are mainly geared towards plucked instruments.
+Temperamental program for [简谱 : jiǎnpǔ](https://en.wikipedia.org/wiki/Numbered_musical_notation) engraving. Please keep in mind that I only play the 柳琴 : liǔqín so this program's capabilities are mainly geared towards plucked instruments.
 
-## Todos
+## Notes
+- Each platform has its own unique font rendering methods. This program was developed and tested exclusively on Fedora 30, therefore I expect that the same engraved composition will look different on other platforms.
+
+## Todo
 [] Change direction symbol if used with a chord.
 [] Render characters individually to mitigate cross-platform kerning and tracking differences.
 
