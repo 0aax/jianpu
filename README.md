@@ -1,10 +1,33 @@
 # jianpu
 
-Temperamental program for [简谱 : jiǎnpǔ](https://en.wikipedia.org/wiki/Numbered_musical_notation) typesetting. Please keep in mind that I only play the 柳琴 : liǔqín so this program's capabilities are mainly geared towards plucked instruments.
+Temperamental program for [简谱 : jiǎnpǔ](https://en.wikipedia.org/wiki/Numbered_musical_notation) engraving. This program's capabilities are mainly geared towards plucked instruments since those are the ones that I am most familar with.
 
+## Example Outputs
+
+<details>
+  <summary>Input code</summary>
+  
+```
+\sqvr{\oct{7, 1}, \oct{2, 2}, \oct{7, 1}, \oct{6, 1}} \oct{5, 1} \bar
+\group{\qvr{\down{\chord{\oct{1, 2}, 5, 2, \oct{5, -1}}}}, \sqvr{\down{\oct{1, 2}}, \up{\oct{1, 2}}}} \qvr{\down{\oct{1, 2}}, \up{\oct{2, 2}}} \bar
+\group{\qvr{\chord{\oct{3, 2}, 5, 2, \oct{5, -1}}}, \sqvr{\oct{3, 2}, \oct{5, 2}}} \qvr{\oct{3, 2}, \oct{2, 2}} \bar
+\group{\qvr{\chord{\oct{2, 2}, 5, 2, \oct{5, -1}}}, \sqvr{\oct{2, 2}, \oct{3, 2}}} \qvr{\oct{2, 1}, 7} \bar
+\sqvr{\down{\oct{6, 1}}, \up{\oct{7, 1}}, \down{\oct{6, 1}}, \up{\oct{5, 1}}} \oct{6, 1} \bar
+\qvr{0} \chord{\oct{1, 2}, 5, 2, \oct{5, -1}} \qvr{\down{\oct{2, 2}}} \bar
+\sqvr{\down{\oct{3, 2}}, \up{\oct{5, 2}}, \down{\oct{3, 2}}, \up{\oct{5, 2}}} \qvr{\down{\oct{3, 2}}, \down{\oct{2, 2}}} \bar
+```
+</details>
+
+<br />
+
+![ex1](examples/ex1.png)
+
+## Notes
+- Branch `e5e5c20` is probably the version of this program that works the best, I may or may not have broken `main`
 ## Todos
-[] Change direction symbol if used with a chord.
-[] Render characters individually to mitigate cross-platform kerning and tracking differences.
+- [ ] Support gracenotes
+- [ ] Change direction symbol if used with a chord.
+- [ ] Render characters individually to mitigate cross-platform kerning and tracking differences.
 
 ## 1. Composition general information
 ### 1.1 Header-related commands
