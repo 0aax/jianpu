@@ -50,7 +50,7 @@ def generate_str(file, paper_type='letter'):
         bln_tmp = []
         sb_prim = ca[0]
         for j in range(1, len_ca):
-            sb_j = rearrange([ca[j]], ignore_time=True)
+            sb_j = rearrange([ca[j]])
             is_ending = j == len_ca - 1
             sb, aln, bln = add_sym_sub(all_final[i], sb_prim, sb_j, return_as_str=False, ending_subln=is_ending)
             sublns.append(''.join(sb))
@@ -224,8 +224,8 @@ def write_to_paper(y, in_file, out_file, paper_type='letter', gen_txt_files=Fals
     NotoSerif_reg = ImageFont.truetype('assets/NotoSerifCJKsc-Regular.otf', 50)
     NotoSerif_li = ImageFont.truetype('assets/NotoSerifCJKsc-Light.otf', 50)
 
-    notes = ImageFont.truetype('assets/jianpu2.otf', 55)
-    notes_small = ImageFont.truetype('assets/jianpu2_small.otf', 55)
+    notes = ImageFont.truetype('assets/jianpu.otf', 55)
+    notes_small = ImageFont.truetype('assets/jianpu_small.otf', 55)
 
     all_final, all_sublns, aln_heights, bln_heights, sub_aln, sub_bln = generate_str(in_file, paper_type=paper_type)
 

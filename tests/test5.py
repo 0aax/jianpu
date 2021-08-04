@@ -8,14 +8,13 @@ paper_type = 'letter'
 paper = Image.new('RGB', paper_sizes[paper_type], (255, 255, 255))
 paper_editable = ImageDraw.Draw(paper)
 
-notes = ImageFont.truetype("assets/jianpu2.otf", 55)
-notes_small = ImageFont.truetype('assets/jianpu2_small.otf', 55)
+notes = ImageFont.truetype("assets/jianpu.otf", 55)
+notes_small = ImageFont.truetype('assets/jianpu_small.otf', 55)
 
 # notes = ImageFont.truetype("assets/jianpu.otf", 55)
 # notes_small = ImageFont.truetype("assets/jianpu_small.otf", 55)
-txt = '| 3   3   4   s4'
-paper_editable.text((0, 10), txt, fill=(0, 0, 0), font=notes)
-paper_editable.text((0, 70), txt, fill=(0, 0, 0), font=notes)
+txt = 'L' + u'\u0323' + 'M' + u'\u0323' + '$1'
+paper_editable.text((50, 100), txt, fill=(0, 0, 0), font=notes)
 # x, y = 150, 150
 # paper_editable.text((x, y), '\\   /   \\  \\  /     \\    \\             \\ / \\ /   \\     \\  /   \\  \\  /     \\    \\             \\ / \\ /   \\', fill=(0, 0, 0), font=notes)
 # paper_editable.text((x, y), '\'                                            \' \' \' \'   \'', fill=(0, 0, 0), font=notes)

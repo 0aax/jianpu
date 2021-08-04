@@ -1,13 +1,14 @@
 # jianpu
 
-Temperamental program for [简谱 : jiǎnpǔ](https://en.wikipedia.org/wiki/Numbered_musical_notation) engraving. Please keep in mind that I only play the 柳琴 : liǔqín so this program's capabilities are mainly geared towards plucked instruments.
+Temperamental program for [简谱 : jiǎnpǔ](https://en.wikipedia.org/wiki/Numbered_musical_notation) engraving. This program's capabilities are mainly geared towards plucked instruments since I play the 柳琴 : liǔqín.
 
-## Notes
-- Each platform has its own unique font rendering methods. This program was developed and tested exclusively on Fedora 30, therefore I expect that the same engraved composition will look different on other platforms.
+## Currently Working On
+- [ ] Gracenotes
 
 ## Todo
-[] Change direction symbol if used with a chord.
-[] Render characters individually to mitigate cross-platform kerning and tracking differences.
+- [ ] Fix duration grouping (i broke it somehow)
+- [ ] Change direction symbol if used with a chord.
+- [ ] Render characters individually to mitigate cross-platform kerning and tracking differences.
 
 ## 1. Composition general information
 ### 1.1 Header-related commands
@@ -54,7 +55,7 @@ X: Percussion (or placeholder for rhythms without pitch)
 (1)
 
 \ddot{1}: Increases length by 3/4, in example note 1 is extended by 3/4
-\dot{1}: Increases length by 1/2, in example note 1 is extened by 1/2
+\dot{1}: Increases length by 1/2, in example note 1 is extended by 1/2
 ```
 ```
 (2)
@@ -65,9 +66,11 @@ X: Percussion (or placeholder for rhythms without pitch)
 \mm{1}: minim, half
 \sbrve{1}: semibreve, whole
 ```
-All duration operators can handle notes of any form (i.e. ones that have been raised or lowered octaves).
+All duration operators can handle operators applied to notes.
 ```
 \qvr{\oct{4, 1}}
+\qvr{\down{\oct{4, 1}}}
+\qvr{\fing{\down{\oct{4, 1}}, 2}}
 ```
 Additionally, the operators from `(2)` can take any number notes.
 ```
@@ -101,6 +104,12 @@ The placement of dynamic changes are determined by their start and end notes.
 ### 2.6 Additional modifiers
 ```
 \grace{1}: Grace note
+```
+The `\grace` operator can handle any number of notes as well as duration and direction operators.
+```
+\grace{\sqvr{\down{\oct{1, 1}}, \up{\oct{2, 1}}}}
+```
+```
 \chord{1, 2}, \chord{1, 2, 3}, etc.: Chords where each note is separated by a comma.
 \trem{1}: Tremolo on note 1.
 ```

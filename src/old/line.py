@@ -8,7 +8,7 @@ def get_target_group_line(measured_notes, target_group={}, target_func=(lambda n
         if isinstance(n, int): return [n]
         elif n[0] in cfg.no_param_elems: return n
         elif n[0] in target_group: return target_func(n)
-        elif n[0] in cfg.dur_group_set:
+        elif n[0] in cfg.dgg_set:
             dur_group_tmp = []
             for e in n[1:]: dur_group_tmp += get_elems(e)
             return dur_group_tmp

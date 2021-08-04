@@ -16,7 +16,8 @@ types_bars = {'bar', 'dbar', 'ebar', 'lrep', 'rrep'}
 
 n_commands = {'chord', 'group', 'qvr', 'sqvr', 'ccht', 'mm', 'sbrve'}
 
-pitch = {'oct', 'sharp', 'flat', 'natural'}
+pitch = {'oct'}
+accidentals = {'sharp', 'flat', 'natural'} # TODO: not implemented yet
 
 # note width scaling factors
 note_base_width = 30
@@ -39,16 +40,15 @@ notes_space = {'sqvr': space_base_width*1,
                'sbrve': space_base_width*5}
 
 duration = {'sqvr', 'qvr', 'ccht', 'mm', 'sbrve'}
-dur_group_set = {'group', 'grace'} | duration
+dgg_set = {'group', 'grace'} | duration
 
 l_marg, r_marg = 150, 150
 
 no_param_elems_prim = types_bars
-one_param_elems_prim_front = {'grace', 'sharp', 'flat', 'natural'}
 one_param_elems_prim_back = {'ddot', 'dot'}
 two_param_elems_prim = {'fing', 'time'}
 
-one_param_elems_prim = one_param_elems_prim_front | one_param_elems_prim_back
+one_param_elems_prim = one_param_elems_prim_back
 
 directions = {'down', 'up'}
 octaves = {'oct'}
@@ -58,8 +58,9 @@ dots = {'dot', 'ddot'}
 no_param_elems = types_bars
 
 ignore_syms = dots
+prim_ignore = {'time', 'grace'}
 
-one_param = directions | tie_slur | dynamics | {'ddot', 'dot', 'trem', 'grace'}
+one_param = directions | tie_slur | dynamics | {'ddot', 'dot', 'trem'}
 two_param = {'time', 'fing'} | octaves
 n_param = duration | {'group'}
 
@@ -81,14 +82,16 @@ sym_factor = {'bar': 2,
               'mm': 4,
               'sbrve': 5,
 
-              'sharp': 1,
-              'flat': 1,
-              'natural': 1,
+              # 'sharp': 1,
+              # 'flat': 1,
+              # 'natural': 1,
 
               'dot': 1, 
               'ddot': 2,
                 
               'space': 1,
+              'small_space': 1/2,
+              'med_space': 3/2,
               'big_space': 2,
               
               'none': 0,
@@ -115,9 +118,9 @@ sym = {'bar': '|',
        'lrep': '{',
        'rrep': '}',
 
-       'sharp': 's',
-       'flat': 'b',
-       'natural': 'n',
+       # 'sharp': 's',
+       # 'flat': 'b',
+       # 'natural': 'n',
 
        'dot': '.',
        'ddot': '..',

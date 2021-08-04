@@ -116,7 +116,7 @@ class Composition:
         
         def get_dur_group(n):
             if isinstance(n, int): return n
-            elif n[0] in cfg.dur_group_set:
+            elif n[0] in cfg.dgg_set:
                 dur_group_tmp = [n[0]] + [get_dur_group(e) for e in n[1:]]
                 return dur_group_tmp
             # elif n[0] == 'chord': # only the uppermost note matters for this particular case

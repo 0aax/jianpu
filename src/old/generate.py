@@ -39,7 +39,7 @@ def write_to_paper(x, y, in_file, out_file, paper_type='letter'):
     NotoSerif_reg = ImageFont.truetype("assets/NotoSerifCJKsc-Regular.otf", 50)
     NotoSerif_li = ImageFont.truetype("assets/NotoSerifCJKsc-Light.otf", 50)
 
-    notes = ImageFont.truetype("assets/jianpu2.otf", 55)
+    notes = ImageFont.truetype("assets/jianpu.otf", 55)
 
     time_up = ImageFont.truetype("assets/time_up.otf", 80)
     time_low = ImageFont.truetype("assets/time_low.otf", 80)

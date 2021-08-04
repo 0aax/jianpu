@@ -3,7 +3,7 @@ import re
 import src.config as cfg
 import src.utils as utls
 
-def rearrange(measured_notes, ignore_time=True):
+def rearrange(measured_notes):
 
     def rr_note(n, ops=tuple()):
         if isinstance(n, int) or n == '-' or n is None:
@@ -11,8 +11,8 @@ def rearrange(measured_notes, ignore_time=True):
             else: return [[list(ops), n]]
         elif n[0] in cfg.one_param: return rr_note(n[1], ops + (n[0],))
         elif n[0] in cfg.two_param: return rr_note(n[1], ops + ((n[0], n[2]),))
-        elif n[0] == 'chord': return rr_note(n[1], ops)
-        elif n[0] == 'time': return rr_note(n[1], ops + ((n[0], n[2]),))
+        elif n[0] == 'chord': return rr_note(n[1], ops) # use first note as placeholder, subline notes are handled differently
+        elif n[0] in cfg.prim_ignore: return rr_note(n[1], ops + ((n[0], n[2]),))
         elif n[0] in cfg.n_param:
             rr_tmp = []
             for e in n[1:]: rr_tmp += rr_note(e, ops)
@@ -23,8 +23,7 @@ def rearrange(measured_notes, ignore_time=True):
     for measure in measured_notes:
         rr_measure = []
         for n in measure:
-            if ignore_time and isinstance(n, list) and n[0] == 'time': continue
-            rr_measure += rr_note(n)
+            if not (isinstance(n, list) and n[0] in cfg.prim_ignore): rr_measure += rr_note(n)
         rr_tmp += rr_measure
     return rr_tmp
 
@@ -176,7 +175,7 @@ def chords_arranged(measured_notes):
     for measure in measured_notes:
         ch_measure = []
         for n in measure:
-            if not (isinstance(n, list) and n[0] == 'time'): ch_measure += get_chord(n)
+            if not (isinstance(n, list) and n[0] in cfg.prim_ignore): ch_measure += get_chord(n)
         chords += ch_measure
     
     sl = sublines(chords)
@@ -194,7 +193,7 @@ def get_primary(measured_notes):
         elif n[0] in cfg.no_param_elems_prim: return n
         elif n[0] in cfg.one_param_elems_prim: return [n[0], get_elems(n[1])]
         elif n[0] in cfg.two_param_elems_prim: return [n[0], get_elems(n[1]), n[2]]
-        elif n[0] in cfg.dur_group_set:
+        elif n[0] in cfg.dgg_set:
             dur_group_tmp = [n[0]] + [get_elems(e) for e in n[1:]]
             return dur_group_tmp
         # elif n[0] == 'chord': # only the uppermost note matters for this particular case
@@ -214,14 +213,16 @@ def gen_primary_str(primary, original):
             if in_g or in_d: return str(n), cfg.note_base_width
             else: return str(n) + ' '*cfg.sym_factor['ccht'], cfg.note_base_width + cfg.space_base_width*cfg.sym_factor['ccht']
         elif n == '-': return n + ' '*cfg.sym_factor['ccht'], cfg.note_base_width + cfg.space_base_width*cfg.sym_factor['ccht']
-        elif n[0] == 'time': return cfg.time_dn[n[2]] + cfg.time_up[n[1]] + '  ', cfg.note_base_width + cfg.space_base_width*2
+        elif n[0] in cfg.prim_ignore: return cfg.time_dn[n[2]] + cfg.time_up[n[1]] + '  ', cfg.note_base_width + cfg.space_base_width*2
         elif n[0] in cfg.types_bars: return cfg.sym[n[0]], cfg.sym_factor[n[0]]*cfg.space_base_width
         elif n[0] in cfg.one_param_elems_prim_back:
             n_tmp, n_walloc = get_alloc(n[1], in_g=in_g, in_d=in_d)
             return n_tmp + cfg.sym[n[0]], n_walloc + cfg.sym_factor[n[0]]*cfg.space_base_width
-        elif n[0] in cfg.one_param_elems_prim_front:
-            n_tmp, n_walloc = get_alloc(n[1], in_g=in_g, in_d=in_d)
-            return cfg.sym[n[0]] + n_tmp, n_walloc + cfg.sym_factor[n[0]]*cfg.space_base_width
+        # TODO: grace notes
+        
+        # elif n[0] in cfg.one_param_elems_prim_front:
+        #     n_tmp, n_walloc = get_alloc(n[1], in_g=in_g, in_d=in_d)
+        #     return cfg.sym[n[0]] + n_tmp, n_walloc + cfg.sym_factor[n[0]]*cfg.space_base_width
         elif n[0] in cfg.duration:
             notes_tmp = n[1:]
             k = cfg.sym_factor[n[0]]
@@ -302,7 +303,7 @@ def get_dur_group(measured_notes):
     for measure in measured_notes:
         measure_dur_group = []
         for n in measure:
-            if not (isinstance(n, list) and n[0] == 'time'): measure_dur_group.append(get_dur_group(n))
+            if not (isinstance(n, list) and n[0] in cfg.prim_ignore): measure_dur_group.append(get_dur_group(n))
         dur_group += measure_dur_group
     return dur_group
 
