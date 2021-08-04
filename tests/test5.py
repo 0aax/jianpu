@@ -13,8 +13,9 @@ notes_small = ImageFont.truetype('assets/jianpu_small.otf', 55)
 
 # notes = ImageFont.truetype("assets/jianpu.otf", 55)
 # notes_small = ImageFont.truetype("assets/jianpu_small.otf", 55)
-txt = 'L' + u'\u0323' + 'M' + u'\u0323' + '$1'
+txt = 'L1'
 paper_editable.text((50, 100), txt, fill=(0, 0, 0), font=notes)
+paper_editable.text((67, 100), '1', fill=(0, 0, 0), font=notes)
 # x, y = 150, 150
 # paper_editable.text((x, y), '\\   /   \\  \\  /     \\    \\             \\ / \\ /   \\     \\  /   \\  \\  /     \\    \\             \\ / \\ /   \\', fill=(0, 0, 0), font=notes)
 # paper_editable.text((x, y), '\'                                            \' \' \' \'   \'', fill=(0, 0, 0), font=notes)

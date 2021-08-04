@@ -21,7 +21,9 @@ accidentals = {'sharp', 'flat', 'natural'} # TODO: not implemented yet
 
 # note width scaling factors
 note_base_width = 30
+gracenote_base_width = 17
 space_base_width = int(30/2)
+gn_space_base_width = 8
 
 note_base_height = 50
 sub_spacer = 30
@@ -58,16 +60,27 @@ dots = {'dot', 'ddot'}
 no_param_elems = types_bars
 
 ignore_syms = dots
-prim_ignore = {'time', 'grace'}
+prim_ignore = {'time'}
 
 one_param = directions | tie_slur | dynamics | {'ddot', 'dot', 'trem'}
 two_param = {'time', 'fing'} | octaves
-n_param = duration | {'group'}
+n_param = duration | {'group', 'grace'}
 
 editable_spaces = {u'\u0307', u'\u0305', u'\u0306', u'\u0304', ' '}
 max_edit_passes = 4
 
 no_additional_width = {u'\u0307', u'\u0305', u'\u0306', u'\u0304', u'\u0302', u'\u0303'}
+
+grace_str = {0: 'K',
+             1: 'L',
+             2: 'M', 
+             3: 'N',
+             4: 'O',
+             5: 'P',
+             6: 'Q',
+             7: 'R'}
+
+notes_str = {str(i) for i in range(8)} | {'-', 'X'} | set(grace_str.values())
 
 sym_factor = {'bar': 2,
               'dbar': 2,
@@ -90,8 +103,6 @@ sym_factor = {'bar': 2,
               'ddot': 2,
                 
               'space': 1,
-              'small_space': 1/2,
-              'med_space': 3/2,
               'big_space': 2,
               
               'none': 0,

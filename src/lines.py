@@ -1,4 +1,5 @@
 import re
+from src.exceptions import RearrangeException
 
 import src.config as cfg
 import src.utils as utls
@@ -6,18 +7,17 @@ import src.utils as utls
 def rearrange(measured_notes):
 
     def rr_note(n, ops=tuple()):
-        if isinstance(n, int) or n == '-' or n is None:
+        if isinstance(n, int) or (isinstance(n, str) and n in cfg.notes_str) or n is None:
             if len(ops) == 0: return [n]
             else: return [[list(ops), n]]
         elif n[0] in cfg.one_param: return rr_note(n[1], ops + (n[0],))
         elif n[0] in cfg.two_param: return rr_note(n[1], ops + ((n[0], n[2]),))
         elif n[0] == 'chord': return rr_note(n[1], ops) # use first note as placeholder, subline notes are handled differently
-        elif n[0] in cfg.prim_ignore: return rr_note(n[1], ops + ((n[0], n[2]),))
         elif n[0] in cfg.n_param:
             rr_tmp = []
             for e in n[1:]: rr_tmp += rr_note(e, ops)
             return rr_tmp
-        else: print(n, 'oops')
+        else: raise RearrangeException("{} cannot be rearranged".format(n))
     
     rr_tmp = []
     for measure in measured_notes:
@@ -47,7 +47,7 @@ def add_sym(primary, notes_syms, helper=None, return_as_str=True):
                 elif cfg.dur_sym['qvr'][2] in helper[i_prim]: curr_helper = 1
                 else: curr_helper = 0
             else: curr_helper = 0
-            if curr_prim.isdigit() or curr_prim == '-':
+            if curr_prim in cfg.notes_str:
                 if isinstance(curr_tg, list) and int(curr_prim) == curr_tg[1]:
                     sym_tmp, aln_tmp, bln_tmp = utls.sym_to_add(curr_helper, curr_tg[0])
                     primary_tmp[i_prim] = curr_prim + sym_tmp
@@ -74,7 +74,7 @@ def add_sym_sub(primary, subln_prim, subln_sec, return_as_str=True, ending_subln
 
     def get_digit(s):
         """
-        Given a string, returns the first digit occurance.
+        Given a string, returns the first digit occurrence.
         """
         digit = re.search(r'\d', s)
         if digit is None: return None
@@ -189,7 +189,7 @@ def get_primary(measured_notes):
     """
 
     def get_elems(n):
-        if isinstance(n, int) or n == '-': return n
+        if isinstance(n, int) or (isinstance(n, str) and n in cfg.notes_str): return n
         elif n[0] in cfg.no_param_elems_prim: return n
         elif n[0] in cfg.one_param_elems_prim: return [n[0], get_elems(n[1])]
         elif n[0] in cfg.two_param_elems_prim: return [n[0], get_elems(n[1]), n[2]]
@@ -208,39 +208,49 @@ def gen_primary_str(primary, original):
     Returns a character-by-character array of the primary line, as well as a corresponding array containing the exact width allocation.
     """
     
-    def get_alloc(n, in_g=False, in_d=False):
+    def get_alloc(n, in_g=False, in_d=False, in_gn=False):
         if isinstance(n, int):
-            if in_g or in_d: return str(n), cfg.note_base_width
+            if in_gn: return cfg.grace_str[n], cfg.gracenote_base_width
+            elif in_g or in_d: return str(n), cfg.note_base_width
             else: return str(n) + ' '*cfg.sym_factor['ccht'], cfg.note_base_width + cfg.space_base_width*cfg.sym_factor['ccht']
-        elif n == '-': return n + ' '*cfg.sym_factor['ccht'], cfg.note_base_width + cfg.space_base_width*cfg.sym_factor['ccht']
-        elif n[0] in cfg.prim_ignore: return cfg.time_dn[n[2]] + cfg.time_up[n[1]] + '  ', cfg.note_base_width + cfg.space_base_width*2
-        elif n[0] in cfg.types_bars: return cfg.sym[n[0]], cfg.sym_factor[n[0]]*cfg.space_base_width
+        elif n == '-':
+            return n + ' '*cfg.sym_factor['ccht'], cfg.note_base_width + cfg.space_base_width*cfg.sym_factor['ccht']
+        elif n[0] in cfg.prim_ignore:
+            return cfg.time_dn[n[2]] + cfg.time_up[n[1]] + '  ', cfg.note_base_width + cfg.space_base_width*2
+        elif n[0] in cfg.types_bars:
+            return cfg.sym[n[0]], cfg.sym_factor[n[0]]*cfg.space_base_width
         elif n[0] in cfg.one_param_elems_prim_back:
-            n_tmp, n_walloc = get_alloc(n[1], in_g=in_g, in_d=in_d)
+            n_tmp, n_walloc = get_alloc(n[1], in_g=in_g, in_d=in_d, in_gn=in_gn)
             return n_tmp + cfg.sym[n[0]], n_walloc + cfg.sym_factor[n[0]]*cfg.space_base_width
-        # TODO: grace notes
-        
         # elif n[0] in cfg.one_param_elems_prim_front:
         #     n_tmp, n_walloc = get_alloc(n[1], in_g=in_g, in_d=in_d)
         #     return cfg.sym[n[0]] + n_tmp, n_walloc + cfg.sym_factor[n[0]]*cfg.space_base_width
         elif n[0] in cfg.duration:
             notes_tmp = n[1:]
-            k = cfg.sym_factor[n[0]]
+            k = cfg.sym_factor[n[0]] if not in_gn else 0
             n_tmp, n_walloc = '', 0
             for v in notes_tmp:
-                v_tmp, v_walloc = get_alloc(v, in_g=in_g, in_d=True)
+                v_tmp, v_walloc = get_alloc(v, in_g=in_g, in_d=True, in_gn=in_gn)
                 n_tmp += v_tmp + ' '*k
                 n_walloc += v_walloc + cfg.space_base_width*k
             if not in_g:
-                return n_tmp + '  ', n_walloc + 30
+                if in_gn: return n_tmp, n_walloc
+                else: return n_tmp + '  ', n_walloc + 30
             else:
                 return n_tmp, n_walloc
         elif n[0] == 'group':
-            n_walloc = [get_alloc(e, in_g=True, in_d=in_d) for e in n[1:]]
-            n_tmp, n_walloc = zip(*n_walloc)
+            tmp = [get_alloc(e, in_g=True, in_d=in_d, in_gn=in_gn) for e in n[1:]]
+            n_tmp, n_walloc = zip(*tmp)
             n_tmp = [l for v in n_tmp for l in v]
             n_tmp = ''.join(n_tmp) + '  '
             n_walloc = sum(n_walloc) + cfg.space_base_width*2
+            return n_tmp, n_walloc
+        elif n[0] == 'grace':
+            tmp = [get_alloc(e, in_g=in_g, in_d=in_d, in_gn=True) for e in n[1:]]
+            n_tmp, n_walloc = zip(*tmp)
+            n_tmp = [l for v in n_tmp for l in v]
+            n_tmp = ''.join(n_tmp) + '$'
+            n_walloc = sum(n_walloc) + cfg.gn_space_base_width
             return n_tmp, n_walloc
         else:
             print('else', n)
@@ -289,21 +299,24 @@ def get_dur_group(measured_notes):
     """
     
     def get_dur_group(n):
-        if isinstance(n, int) or n == '-': return n
-        elif n[0] == 'group':
+        if isinstance(n, int) or (isinstance(n, str) and n in cfg.notes_str): 
+            return [n]
+        elif n[0] == 'group' or n[0] == 'grace':
             group_tmp = []
             for e in n[1:]: group_tmp += get_dur_group(e)
             return group_tmp
         elif n[0] in cfg.duration:
-            dur_tmp = [n[0]] + [get_dur_group(e) for e in n[1:]]
-            return dur_tmp
+            dur_tmp = [n[0]]
+            for e in n[1:]: dur_tmp += get_dur_group(e)
+            return [dur_tmp]
         else: return get_dur_group(n[1])
 
     dur_group = []
     for measure in measured_notes:
         measure_dur_group = []
         for n in measure:
-            if not (isinstance(n, list) and n[0] in cfg.prim_ignore): measure_dur_group.append(get_dur_group(n))
+            if not (isinstance(n, list) and n[0] in cfg.prim_ignore): 
+                measure_dur_group += get_dur_group(n)
         dur_group += measure_dur_group
     return dur_group
 
@@ -329,16 +342,16 @@ def match_prim_dur(primary, dur_group, return_as_str=False):
                 while i_match < len_match:
                     curr_prim = primary[i_prim]
 
-                    if not curr_prim.isdigit():
-                        primary_tmp[i_prim] = prev_sym
-                        i_prim += 1
-                        continue
+                    # if curr_prim not in cfg.notes_str:
+                    #     primary_tmp[i_prim] = prev_sym
+                    #     i_prim += 1
+                    #     continue
 
                     if curr_dur[i_match] in cfg.duration:
                         dur_sym_dict = cfg.dur_sym[curr_dur[i_match]]
                         i_match += 1
 
-                    if curr_prim.isdigit() and int(curr_prim) == curr_dur[i_match]:
+                    if (curr_prim.isdigit() and int(curr_prim) == curr_dur[i_match]) or (curr_prim in cfg.notes_str and curr_prim == curr_dur):
                         primary_tmp[i_prim] = dur_sym_dict[2]
                         i_prim += 1
                         i_match += 1
@@ -349,12 +362,12 @@ def match_prim_dur(primary, dur_group, return_as_str=False):
                         prev_sym = dur_sym_dict[1]
                 updated = True
                 i_dur += 1
-            else:
-                if curr_prim.isdigit() and int(curr_prim) == curr_dur:
-                    primary_tmp[i_prim] = ''
-                    i_prim += 1
-                    i_dur += 1
-                    updated = True
+
+            elif (curr_prim.isdigit() and int(curr_prim) == curr_dur) or (curr_prim in cfg.notes_str and curr_prim == curr_dur):
+                primary_tmp[i_prim] = ''
+                i_prim += 1
+                i_dur += 1
+                updated = True
                 
         if not updated:
             primary_tmp[i_prim] = ''

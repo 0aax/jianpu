@@ -18,17 +18,24 @@ def generate_str(file, paper_type='letter'):
     pl = get_primary(measured_w_bar)
     notes, bars, walloc, notes_orig = gen_primary_str(pl, measured_no_bar)
 
+    print('notes:', notes)
+
     final_prelim = []
     aln_heights = []
     bln_heights = []
 
     for i, mnb in enumerate(notes_orig):
         mnb = [mnb]
+        print('mnb:', mnb)
         rr = rearrange(mnb)
+        print('rr:', rr)
 
         notes_lst = arr_from_string(notes[i])
+        print('notes_lst', notes_lst)
         dg = get_dur_group(mnb)
+        print('dg:', dg)
         pd = match_prim_dur(notes_lst, dg)
+        print('pd', pd)
 
         tmp, aln_h, bln_h = add_sym(notes[i], rr, helper=pd, return_as_str=False)
         final = element_wise_sum(tmp, pd)
@@ -46,8 +53,7 @@ def generate_str(file, paper_type='letter'):
         ca = chords_arranged(mnb)
         len_ca = len(ca)
         sublns = []
-        aln_tmp = []
-        bln_tmp = []
+        aln_tmp, bln_tmp = [], []
         sb_prim = ca[0]
         for j in range(1, len_ca):
             sb_j = rearrange([ca[j]])
