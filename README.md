@@ -1,5 +1,6 @@
 # jianpu
 
+## (*In progress*)
 Temperamental program for [简谱 : jiǎnpǔ](https://en.wikipedia.org/wiki/Numbered_musical_notation) engraving. This program's capabilities are mainly geared towards plucked instruments since those are the ones that I am most familar with.
 
 ## Example Outputs
@@ -23,7 +24,6 @@ Temperamental program for [简谱 : jiǎnpǔ](https://en.wikipedia.org/wiki/Numb
 ## Notes
 - Branch `e5e5c20` is probably the version of this program that works the best, I may or may not have broken `main`
 ## Todos
-- [ ] Support gracenotes
 - [ ] Change direction symbol if used with a chord.
 - [ ] Render characters individually to mitigate cross-platform kerning and tracking differences.
 
