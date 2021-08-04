@@ -18,8 +18,6 @@ Temperamental program for [简谱 : jiǎnpǔ](https://en.wikipedia.org/wiki/Numb
 ```
 </details>
 
-<br />
-
 ![ex1](examples/ex1.png)
 
 ## Notes
