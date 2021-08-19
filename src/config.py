@@ -59,7 +59,7 @@ no_param_elems = types_bars
 
 ignore_syms = dots
 
-one_param = directions | tie_slur | dynamics | {'ddot', 'dot', 'trem', 'grace'}
+one_param = directions | tie_slur | dynamics | {'ddot', 'dot', 'trem', 'grace', 'sslur', 'eslur'}
 two_param = {'time', 'fing'} | octaves
 n_param = duration | {'group'}
 
