@@ -6,7 +6,7 @@ import src.utils as utls
 def rearrange(measured_notes, ignore_time=True):
 
     def rr_note(n, ops=tuple()):
-        if isinstance(n, int) or n == '-' or n is None:
+        if isinstance(n, int) or (isinstance(n, str) and n in cfg.non_int_note) or n is None:
             if len(ops) == 0: return [n]
             else: return [[list(ops), n]]
         elif n[0] in cfg.one_param: return rr_note(n[1], ops + (n[0],))
@@ -48,7 +48,7 @@ def add_sym(primary, notes_syms, helper=None, return_as_str=True):
                 elif cfg.dur_sym['qvr'][2] in helper[i_prim]: curr_helper = 1
                 else: curr_helper = 0
             else: curr_helper = 0
-            if curr_prim.isdigit() or curr_prim == '-':
+            if curr_prim.isdigit() or curr_prim in cfg.non_int_note:
                 if isinstance(curr_tg, list) and int(curr_prim) == curr_tg[1]:
                     sym_tmp, aln_tmp, bln_tmp = utls.sym_to_add(curr_helper, curr_tg[0])
                     primary_tmp[i_prim] = curr_prim + sym_tmp
@@ -151,7 +151,7 @@ def chords_arranged(measured_notes):
     """
 
     def get_chord(n):
-        if isinstance(n, int) or n == '-': return [n]
+        if isinstance(n, int) or (isinstance(n, str) and n in cfg.non_int_note): return [n]
         elif n[0] == 'chord': return [n[1:]]
         elif n[0] in cfg.n_param:
             ch_tmp = []
@@ -165,7 +165,7 @@ def chords_arranged(measured_notes):
         ds = [[0]*len_line for _ in range(num_lines)]
 
         for i, c in enumerate(ch):
-            if isinstance(c, int) or c == '-': pop_tmp = [c] + [None]*(num_lines-1)
+            if isinstance(c, int) or (isinstance(c, str) and c in cfg.non_int_note): pop_tmp = [c] + [None]*(num_lines-1)
             else:
                 pop_tmp = c + [None]*(num_lines - len(c))
             for j, pt in enumerate(pop_tmp): ds[j][i] = pt
@@ -180,7 +180,7 @@ def chords_arranged(measured_notes):
         chords += ch_measure
     
     sl = sublines(chords)
-    sl[0] = [n if isinstance(n, int) or n == '-' else n[1] for n in sl[0]]
+    sl[0] = [n if isinstance(n, int) or (isinstance(n, str) and n in cfg.non_int_note) else n[1] for n in sl[0]]
 
     return sl
 
@@ -190,7 +190,7 @@ def get_primary(measured_notes):
     """
 
     def get_elems(n):
-        if isinstance(n, int) or n == '-': return n
+        if isinstance(n, int) or (isinstance(n, str) and n in cfg.non_int_note): return n
         elif n[0] in cfg.no_param_elems_prim: return n
         elif n[0] in cfg.one_param_elems_prim: return [n[0], get_elems(n[1])]
         elif n[0] in cfg.two_param_elems_prim: return [n[0], get_elems(n[1]), n[2]]
@@ -211,11 +211,17 @@ def gen_primary_str(primary, original):
     
     def get_alloc(n, in_g=False, in_d=False):
         if isinstance(n, int):
-            if in_g or in_d: return str(n), cfg.note_base_width
-            else: return str(n) + ' '*cfg.sym_factor['ccht'], cfg.note_base_width + cfg.space_base_width*cfg.sym_factor['ccht']
-        elif n == '-': return n + ' '*cfg.sym_factor['ccht'], cfg.note_base_width + cfg.space_base_width*cfg.sym_factor['ccht']
-        elif n[0] == 'time': return cfg.time_dn[n[2]] + cfg.time_up[n[1]] + '  ', cfg.note_base_width + cfg.space_base_width*2
-        elif n[0] in cfg.types_bars: return cfg.sym[n[0]], cfg.sym_factor[n[0]]*cfg.space_base_width
+            if in_g or in_d:
+                return str(n), cfg.note_base_width
+            else:
+                return str(n) + ' '*cfg.sym_factor['ccht'], cfg.note_base_width + cfg.space_base_width*cfg.sym_factor['ccht']
+        elif (isinstance(n, str) and n in cfg.non_int_note):
+            return n + ' '*cfg.sym_factor['ccht'], cfg.note_base_width + cfg.space_base_width*cfg.sym_factor['ccht']
+        elif n[0] == 'grace': pass
+        elif n[0] == 'time':
+            return cfg.time_dn[n[2]] + cfg.time_up[n[1]] + '  ', cfg.note_base_width + cfg.space_base_width*2
+        elif n[0] in cfg.types_bars:
+            return cfg.sym[n[0]], cfg.sym_factor[n[0]]*cfg.space_base_width
         elif n[0] in cfg.one_param_elems_prim_back:
             n_tmp, n_walloc = get_alloc(n[1], in_g=in_g, in_d=in_d)
             return n_tmp + cfg.sym[n[0]], n_walloc + cfg.sym_factor[n[0]]*cfg.space_base_width
@@ -288,7 +294,7 @@ def get_dur_group(measured_notes):
     """
     
     def get_dur_group(n):
-        if isinstance(n, int) or n == '-': return n
+        if isinstance(n, int) or (isinstance(n, str) and n in cfg.non_int_note): return n
         elif n[0] == 'group':
             group_tmp = []
             for e in n[1:]: group_tmp += get_dur_group(e)

@@ -38,7 +38,7 @@ def tokenize(txt, is_lst=False):
         tmp = re.sub('([0-9])\s\[', r'\1, [', tmp)      # note [ --> note, [
         tmp = re.sub('\]\s\[', r'], [', tmp)            # ] [ --> ], [
         tmp = re.sub('([0-9])\s', r'\1, ', tmp)         # note --> note,
-        fin = re.sub('([-])[^0-9]', r'\1, ', tmp)       # - --> -,
+        fin = re.sub('([X-])[^0-9]', r'\1, ', tmp)       # - --> -,
         return fin
 
     def fix_strings(txt):
@@ -48,14 +48,14 @@ def tokenize(txt, is_lst=False):
         tmp = re.sub('\[([a-zA-Z]+),', r'["\1",', txt)   # [op, --> ['op',
         for s in cfg.always_str:
             tmp = re.sub('\["{}", (.*?)\]'.format(s), r'["{}", "\1"]'.format(s), tmp)
-        tmp = re.sub('([-]),', r'"\1",', tmp)             # - --> '-'
+        tmp = re.sub('([X-]),', r'"\1",', tmp)             # - --> '-'
         fin = re.sub('\[([a-zA-Z]+)\]', r'["\1"]', tmp)  # [op] --> ['op']
         return fin
 
     lst = to_lst(txt) if not is_lst else txt
     cleaned = clean(lst)
     tkns = '[' + fix_strings(place_commas(cleaned)).strip() + ']'
-
+    
     return tkns
 
 def parse(file, is_lst=False):

@@ -17,7 +17,7 @@ types_bars = {'bar', 'dbar', 'ebar', 'lrep', 'rrep'}
 n_commands = {'chord', 'group', 'qvr', 'sqvr', 'ccht', 'mm', 'sbrve'}
 
 pitch = {'oct', 'sharp', 'flat', 'natural'}
-
+non_int_note = {'-', 'X'}
 # note width scaling factors
 note_base_width = 30
 space_base_width = int(30/2)
@@ -67,6 +67,15 @@ editable_spaces = {u'\u0307', u'\u0305', u'\u0306', u'\u0304', ' '}
 max_edit_passes = 4
 
 no_additional_width = {u'\u0307', u'\u0305', u'\u0306', u'\u0304', u'\u0302', u'\u0303'}
+
+grace_str = {0: 'K',
+             1: 'L',
+             2: 'M', 
+             3: 'N',
+             4: 'O',
+             5: 'P',
+             6: 'Q',
+             7: 'R'}
 
 sym_factor = {'bar': 2,
               'dbar': 2,
