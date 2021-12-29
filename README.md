@@ -18,6 +18,7 @@ Temperamental program for [简谱 : jiǎnpǔ](https://en.wikipedia.org/wiki/Numb
 \sqvr{\down{\oct{3, 2}}, \up{\oct{5, 2}}, \down{\oct{3, 2}}, \up{\oct{5, 2}}} \qvr{\down{\oct{3, 2}}, \down{\oct{2, 2}}} \bar
 ```
 </details>
+Output
 
 ![ex1](examples/ex1.png)
 
